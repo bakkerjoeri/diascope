@@ -1,0 +1,31 @@
+{
+  "name": "diascope",
+  "version": "0.0.0",
+  "description": "An item slider",
+  "main": "src/main.js",
+  "scripts": {
+    "watch": "NODE_ENV=development webpack -d --watch --progress",
+    "build": "NODE_ENV=production webpack -p --watch --progress"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://joeribakker@github.com/joeribakker/diascope.git"
+  },
+  "keywords": [
+    "carousel",
+    "slider",
+    "touch"
+  ],
+  "author": "Joeri Bakker <bakkerjoeri@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/joeribakker/diascope/issues"
+  },
+  "homepage": "https://github.com/joeribakker/diascope#readme",
+  "devDependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-loader": "^7.1.1",
+    "babel-preset-env": "^1.6.0",
+    "webpack": "^3.3.0"
+  }
+}
