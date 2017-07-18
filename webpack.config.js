@@ -11,6 +11,8 @@ module.exports = () => {
 			path: path.resolve('./dist'),
 			publicPath: '/',
 			filename: 'diascope.min.js',
+			library: 'Diascope',
+			libraryTarget: 'umd',
 		},
 		module: {
 			rules: [{
