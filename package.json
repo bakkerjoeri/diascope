@@ -4,8 +4,8 @@
   "description": "An item slider",
   "main": "src/main.js",
   "scripts": {
-    "watch": "NODE_ENV=development webpack -d --watch --progress",
-    "build": "NODE_ENV=production webpack -p --watch --progress"
+    "watch": "NODE_ENV=development webpack -d --watch --progress --config webpack.config.js",
+    "build": "NODE_ENV=production webpack -p --progress --config webpack.config.js"
   },
   "repository": {
     "type": "git",
@@ -24,8 +24,12 @@
   "homepage": "https://github.com/joeribakker/diascope#readme",
   "devDependencies": {
     "babel-cli": "^6.24.1",
+    "babel-eslint": "^7.2.3",
     "babel-loader": "^7.1.1",
+    "babel-plugin-add-module-exports": "^0.2.1",
+    "babel-plugin-transform-es2015-modules-umd": "^6.24.1",
     "babel-preset-env": "^1.6.0",
+    "eslint": "^4.2.0",
     "webpack": "^3.3.0"
   }
 }
