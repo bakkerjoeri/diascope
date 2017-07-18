@@ -8,9 +8,6 @@ export default class Diascope {
 		this.elementReel = reel;
 		this.elementsSlides = Array.from(this.elementReel.children);
 
-		this.setSlideAsCurrentSlide(this.elementsSlides[this.options.start]);
-		bringSlideOfReelIntoFrame(this.elementsSlides[this.options.start], this.elementReel, this.elementFrame);
-
 		if (this.elementNavigatePrevious) {
 			addEvent('click', this.elementNavigatePrevious, this.previous.bind(this));
 		}
@@ -21,38 +18,18 @@ export default class Diascope {
 	}
 
 	next() {
-		this.adjustPositionWithStep(this.options.step);
+		this.panSlides(this.options.step);
 	}
 
 	previous() {
-		this.adjustPositionWithStep(this.options.step * -1);
+		this.panSlides(this.options.step * -1);
 	}
 
-	adjustPositionWithStep(stepSize) {
-		let currentPosition = this.elementsSlides.indexOf(this.activeSlide);
-		let amountOfSlides = this.elementsSlides.length;
-		let newPosition = determineNewPosition(amountOfSlides, currentPosition, stepSize, this.options.loop);
-		let newCurrentSlide = this.elementsSlides[newPosition];
+	panSlides(pan) {
+		let newSlides = findNewVisibleSlides(pan, this.elementsSlides, this.elementFrame, this.options.loop);
 
-		this.setSlideAsCurrentSlide(newCurrentSlide);
-		bringSlideOfReelIntoFrame(newCurrentSlide, this.elementReel, this.elementFrame);
-	}
-
-	setSlideAsCurrentSlide(slide) {
-		this.markSlideAsInactive(this.activeSlide);
-		this.activeSlide = slide;
-		this.markSlideAsActive(slide);
-	}
-
-	markSlideAsActive(slide) {
-		if (slide) {
-			slide.classList.add('is-active');
-		}
-	}
-
-	markSlideAsInactive(slide) {
-		if (slide) {
-			slide.classList.remove('is-active');
+		if (newSlides.length > 0) {
+			bringSlidesOfReelIntoFrame(newSlides, this.elementReel, this.elementFrame, this.options.shouldCenter);
 		}
 	}
 }
@@ -62,50 +39,132 @@ function getDefaultOptions() {
 		start: 0,
 		step: 1,
 		loop: true,
-		align: 'left',
+		infinite: false,
+		shouldCenter: false,
 		selectorNavigatePrevious: '.js-diascope-navigate-previous',
 		selectorNavigateNext: '.js-diascope-navigate-next',
 	};
 }
 
-function determineNewPosition(listSize, currentPosition, stepSize, shouldLoop = false) {
-	if (shouldLoop) {
-		let distanceFromListBoundaries = (currentPosition + stepSize) % listSize;
+function findNewVisibleSlides(pan, slides, frame, shouldLoop) {
+	const firstSlideIndex = 0;
+	const lastSlideIndex = slides.length - 1;
 
-		if (distanceFromListBoundaries < 0) {
-			return listSize + distanceFromListBoundaries;
-		}
+	let newSlides = [],
+		firstVisibleSlideIndex,
+		lastVisibleSlideIndex,
+		firstNewSlideIndex,
+		lastNewSlideIndex;
 
-		return distanceFromListBoundaries;
+	firstVisibleSlideIndex = findIndexOfFirstVisibleSlideInFrame(slides, frame);
+	lastVisibleSlideIndex = findIndexOfLastVisibleSlideInFrame(slides, frame);
+
+	// loop to the first slide.
+	if (pan > 0 && shouldLoop && lastVisibleSlideIndex === lastSlideIndex) {
+		return [slides[0]];
 	}
 
-	if (currentPosition + stepSize > listSize) {
-		return listSize;
-	} else if (currentPosition + stepSize < 0) {
-		return 0;
+	// loop to the last slide.
+	if (pan < 0 && shouldLoop && firstVisibleSlideIndex === firstSlideIndex) {
+		return [slides[lastSlideIndex]];
 	}
 
-	return currentPosition + stepSize;
+
+	if (lastVisibleSlideIndex + pan > lastSlideIndex) {
+		pan = lastSlideIndex - lastVisibleSlideIndex;
+		firstNewSlideIndex = lastSlideIndex - pan;
+		lastNewSlideIndex = lastSlideIndex;
+	} else if (firstVisibleSlideIndex + pan < 0) {
+		pan = firstSlideIndex - firstVisibleSlideIndex;
+		firstNewSlideIndex = 0
+		lastNewSlideIndex = 0 - pan;
+	} else {
+		firstNewSlideIndex = firstVisibleSlideIndex + pan;
+		lastNewSlideIndex = lastVisibleSlideIndex + pan;
+	}
+
+	for (let i = firstNewSlideIndex; i <= lastNewSlideIndex; i++) {
+		newSlides.push(slides[i]);
+	}
+
+	return newSlides;
 }
 
-function bringSlideOfReelIntoFrame(slide, reel, frame, align = 'left') {
-	let listOffsetLeft = 0;
+function findIndexOfFirstVisibleSlideInFrame(slides, frame) {
+	for (let currentSlideIndex = 0; currentSlideIndex < slides.length; currentSlideIndex++) {
+		if (isSlideInFrame(slides[currentSlideIndex], frame)) {
+			return currentSlideIndex;
+		}
+	}
+}
 
-	if (align === 'left') {
-		listOffsetLeft = slide.getBoundingClientRect().left - reel.getBoundingClientRect().left;
-	} else if (align === 'center') {
-		listOffsetLeft = (slide.getBoundingClientRect().left - reel.getBoundingClientRect().left - (frame.getBoundingClientRect().width / 2) + (slide.getBoundingClientRect().width / 2));
+function findIndexOfLastVisibleSlideInFrame(slides, frame) {
+	let lastVisibleSlideIndex;
+
+	for (let currentSlideIndex = 0; currentSlideIndex < slides.length; currentSlideIndex++) {
+		if (isSlideInFrame(slides[currentSlideIndex], frame)) {
+			lastVisibleSlideIndex = currentSlideIndex;
+		}
 	}
 
-	if (listOffsetLeft < 0) {
-		listOffsetLeft = 0;
+	return lastVisibleSlideIndex;
+}
+
+function bringSlidesOfReelIntoFrame(slides, reel, frame, shouldCenter = false) {
+	let reelOffsetLeft = 0;
+	let slidesBounds = getHorizontalBoundsOfSlides(slides);
+	let reelBounds = reel.getBoundingClientRect();
+	let frameBounds = frame.getBoundingClientRect();
+
+	if (shouldCenter) {
+		reelOffsetLeft = (slidesBounds.left - reelBounds.left) - ((frameBounds.width - slidesBounds.width) / 2);
+	} else {
+		if (slidesBounds.right > frameBounds.right) {
+			reelOffsetLeft = (reelBounds.left * -1) + (slidesBounds.right - frameBounds.right);
+		} else if (slidesBounds.left < frameBounds.left) {
+			reelOffsetLeft = (slidesBounds.left - reelBounds.left);
+		}
 	}
 
-	if (listOffsetLeft > reel.getBoundingClientRect().width - frame.getBoundingClientRect().width) {
-		listOffsetLeft = reel.getBoundingClientRect().width - frame.getBoundingClientRect().width;
+
+	if (reelOffsetLeft < 0) {
+		reelOffsetLeft = 0;
 	}
 
-	this.elementReel.style.transform = `translateX(${-listOffsetLeft}px)`;
+	if (reelOffsetLeft > reelBounds.width - frameBounds.width) {
+		reelOffsetLeft = reelBounds.width - frameBounds.width;
+	}
+
+	reel.style.transform = `translateX(${-reelOffsetLeft}px)`;
+}
+
+function getHorizontalBoundsOfSlides(slides) {
+	let maxLeft;
+	let maxRight;
+
+	slides.forEach((slide) => {
+		if (maxLeft === undefined || slide.getBoundingClientRect().left < maxLeft) {
+			maxLeft = slide.getBoundingClientRect().left;
+		}
+
+		if (maxRight === undefined || slide.getBoundingClientRect().right > maxRight) {
+			maxRight = slide.getBoundingClientRect().right;
+		}
+	});
+
+	return {
+		left: maxLeft,
+		right: maxRight,
+		width: maxRight - maxLeft,
+	}
+}
+
+function isSlideInFrame(slide, frame) {
+	let slideBounds = slide.getBoundingClientRect();
+	let frameBounds = frame.getBoundingClientRect();
+
+	return slideBounds.left >= frameBounds.left
+		&& slideBounds.right <= frameBounds.right;
 }
 
 function applyDefaultsForMissingKeys(object, defaults) {
