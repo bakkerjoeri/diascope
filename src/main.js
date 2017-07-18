@@ -36,10 +36,8 @@ export default class Diascope {
 
 function getDefaultOptions() {
 	return {
-		start: 0,
 		step: 1,
 		loop: true,
-		infinite: false,
 		shouldCenter: false,
 		selectorNavigatePrevious: '.js-diascope-navigate-previous',
 		selectorNavigateNext: '.js-diascope-navigate-next',
