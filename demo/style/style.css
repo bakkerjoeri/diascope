@@ -28,8 +28,8 @@
 .diascope__cell {
     position: relative;
     display: inline-block;
-    flex: 0 0 calc(100vw / 4);
-    width: calc(100vw / 4);
+    flex: 0 0 calc(95vw / 4);
+    width: calc(95vw / 4);
     height: 200px;
     padding: 20px;
     font-size: 100px;
