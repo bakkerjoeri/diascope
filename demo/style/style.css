@@ -1,0 +1,60 @@
+/* reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* diascope */
+.diascope {
+    position: relative;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.diascope__frame {
+    display: flex;
+    position: relative;
+    width: 100%;
+    overflow: visible;
+    background-color: white;
+    white-space: nowrap;
+}
+
+.diascope__reel {
+    display: inline-block;
+    transition: transform .3s;
+}
+
+.diascope__cell {
+    position: relative;
+    display: inline-block;
+    width: calc(100vw / 4);
+    height: 200px;
+    padding: 20px;
+    font-size: 100px;
+    color: white;
+
+    transition: background-color .5s;
+
+    background-color: green;
+}
+
+.diascope__cell.is-active {
+    background-color: red;
+}
+
+.diascope-navigation-previous,
+.diascope-navigation-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.diascope-navigation-previous {
+    left: 0;
+}
+
+.diascope-navigation-next {
+    right: 0;
+}
