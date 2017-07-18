@@ -13,7 +13,6 @@
 }
 
 .diascope__frame {
-    display: flex;
     position: relative;
     width: 100%;
     overflow: visible;
@@ -22,18 +21,20 @@
 }
 
 .diascope__reel {
-    display: inline-block;
+    display: inline-flex;
     transition: transform .3s;
 }
 
 .diascope__cell {
     position: relative;
     display: inline-block;
+    flex: 0 0 calc(100vw / 4);
     width: calc(100vw / 4);
     height: 200px;
     padding: 20px;
     font-size: 100px;
     color: white;
+    border: 1px solid #fff;
 
     transition: background-color .5s;
 
