@@ -29,7 +29,14 @@ export default class Diascope {
 		let newSlides = findNewVisibleSlides(pan, this.elementsSlides, this.elementFrame, this.options.loop);
 
 		if (newSlides.length > 0) {
-			bringSlidesOfReelIntoFrame(newSlides, this.elementReel, this.elementFrame, this.options.shouldCenter);
+			let reelOffsetLeft = calculateLeftReelOffsetToBringSlidesIntoFrame(
+				newSlides,
+				this.elementReel,
+				this.elementFrame,
+				this.options.shouldCenter
+			);
+
+			this.elementReel.style.transform = `translateX(${reelOffsetLeft}px)`;
 		}
 	}
 }
@@ -37,7 +44,7 @@ export default class Diascope {
 function getDefaultOptions() {
 	return {
 		step: 1,
-		loop: true,
+		loop: false,
 		shouldCenter: false,
 		selectorNavigatePrevious: '.js-diascope-navigate-previous',
 		selectorNavigateNext: '.js-diascope-navigate-next',
@@ -108,32 +115,34 @@ function findIndexOfLastVisibleSlideInFrame(slides, frame) {
 	return lastVisibleSlideIndex;
 }
 
-function bringSlidesOfReelIntoFrame(slides, reel, frame, shouldCenter = false) {
-	let reelOffsetLeft = 0;
+function calculateLeftReelOffsetToBringSlidesIntoFrame(slides, reel, frame, shouldCenter = false) {
 	let slidesBounds = getHorizontalBoundsOfSlides(slides);
 	let reelBounds = reel.getBoundingClientRect();
 	let frameBounds = frame.getBoundingClientRect();
 
 	if (shouldCenter) {
-		reelOffsetLeft = (slidesBounds.left - reelBounds.left) - ((frameBounds.width - slidesBounds.width) / 2);
-	} else {
-		if (slidesBounds.right > frameBounds.right) {
-			reelOffsetLeft = (reelBounds.left * -1) + (slidesBounds.right - frameBounds.right);
-		} else if (slidesBounds.left < frameBounds.left) {
-			reelOffsetLeft = (slidesBounds.left - reelBounds.left);
+		let reelOffsetLeft = (frameBounds.left - slidesBounds.left) - (frameBounds.left - reelBounds.left) + ((frameBounds.width - slidesBounds.width) / 2);
+
+		if ((reelOffsetLeft * -1) > (reelBounds.width - frameBounds.width)) {
+			return (frameBounds.width - reelBounds.width);
 		}
+
+		if (reelOffsetLeft >= 0) {
+			return 0;
+		}
+
+		return reelOffsetLeft;
 	}
 
-
-	if (reelOffsetLeft < 0) {
-		reelOffsetLeft = 0;
+	if (slidesBounds.right > frameBounds.right) {
+		return (reelBounds.left - frameBounds.left) - (slidesBounds.right - frameBounds.right);
 	}
 
-	if (reelOffsetLeft > reelBounds.width - frameBounds.width) {
-		reelOffsetLeft = reelBounds.width - frameBounds.width;
+	if (slidesBounds.left < frameBounds.left) {
+		return (frameBounds.left - slidesBounds.left) - (frameBounds.left - reelBounds.left);
 	}
 
-	reel.style.transform = `translateX(${-reelOffsetLeft}px)`;
+	return (frameBounds.left - reelBounds.left);
 }
 
 function getHorizontalBoundsOfSlides(slides) {
