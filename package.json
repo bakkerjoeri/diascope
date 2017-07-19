@@ -2,7 +2,7 @@
   "name": "diascope",
   "version": "0.1.0",
   "description": "An item slider",
-  "main": "src/main.js",
+  "main": "dist/diascope.min.js",
   "scripts": {
     "watch": "NODE_ENV=development webpack -d --watch --progress --config webpack.config.js",
     "build": "NODE_ENV=production webpack -p --progress --config webpack.config.js"
@@ -17,7 +17,6 @@
     "touch"
   ],
   "author": "Joeri Bakker <bakkerjoeri@gmail.com>",
-  "license": "MIT",
   "bugs": {
     "url": "https://github.com/joeribakker/diascope/issues"
   },
