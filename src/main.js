@@ -6,8 +6,12 @@ export default class Diascope {
 		this.elementReel = reel;
 		this.elementsSlides = Array.from(this.elementReel.children);
 
+		if (this.options.hasOwnProperty('elementNavigateNext')) {
+			this.addElementNavigateNext(this.options.elementNavigateNext);
 		}
 
+		if (this.options.hasOwnProperty('elementNavigatePrevious')) {
+			this.addElementNavigatePrevious(this.options.elementNavigatePrevious);
 		}
 	}
 
@@ -31,6 +35,18 @@ export default class Diascope {
 			);
 
 			this.elementReel.style.transform = `translateX(${reelOffsetLeft}px)`;
+		}
+	}
+
+	addElementNavigateNext(element) {
+		if (element instanceof Element) {
+			addEvent('click', element, this.next.bind(this));
+		}
+	}
+
+	addElementNavigatePrevious(element) {
+		if (element instanceof Element) {
+			addEvent('click', element, this.previous.bind(this));
 		}
 	}
 }
