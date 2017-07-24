@@ -1,4 +1,4 @@
-import Animator from './Animator';
+import Animation from './Animation';
 
 export default class Diascope {
 	constructor(frame, reel, options = {}) {
@@ -36,7 +36,8 @@ export default class Diascope {
 				this.options.shouldCenter
 			);
 
-			Animator.animateElementToHorizontalOffset(this.elementReel, reelOffsetLeft, this.options.speed);
+			let animation = new Animation(this.elementReel, reelOffsetLeft, this.options.duration);
+			animation.start();
 		}
 	}
 
@@ -55,7 +56,7 @@ export default class Diascope {
 
 function getDefaultOptions() {
 	return {
-		speed: 0.1,
+		duration: 0.1,
 		step: 1,
 		loop: false,
 		shouldCenter: false,
