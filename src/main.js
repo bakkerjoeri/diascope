@@ -2,18 +2,12 @@ export default class Diascope {
 	constructor(frame, reel, options = {}) {
 		this.options = Object.assign(getDefaultOptions(), options);
 
-		this.elementNavigatePrevious = document.querySelector(options.selectorNavigatePrevious);
-		this.elementNavigateNext = document.querySelector(options.selectorNavigateNext);
 		this.elementFrame = frame;
 		this.elementReel = reel;
 		this.elementsSlides = Array.from(this.elementReel.children);
 
-		if (this.elementNavigatePrevious) {
-			addEvent('click', this.elementNavigatePrevious, this.previous.bind(this));
 		}
 
-		if (this.elementNavigateNext) {
-			addEvent('click', this.elementNavigateNext, this.next.bind(this));
 		}
 	}
 
@@ -46,8 +40,6 @@ function getDefaultOptions() {
 		step: 1,
 		loop: false,
 		shouldCenter: false,
-		selectorNavigatePrevious: '.js-diascope-navigate-previous',
-		selectorNavigateNext: '.js-diascope-navigate-next',
 	};
 }
 
