@@ -1,6 +1,6 @@
 export default class Diascope {
 	constructor(frame, reel, options = {}) {
-		this.options = applyDefaultsForMissingKeys(options, getDefaultOptions());
+		this.options = Object.assign(getDefaultOptions(), options);
 
 		this.elementNavigatePrevious = document.querySelector(options.selectorNavigatePrevious);
 		this.elementNavigateNext = document.querySelector(options.selectorNavigateNext);
@@ -172,16 +172,6 @@ function isSlideInFrame(slide, frame) {
 
 	return slideBounds.left >= frameBounds.left
 		&& slideBounds.right <= frameBounds.right;
-}
-
-function applyDefaultsForMissingKeys(object, defaults) {
-	for (let key in defaults) {
-		if (!object.hasOwnProperty(key)) {
-			object[key] = defaults[key];
-		}
-	}
-
-	return object;
 }
 
 function addEvent(type, element, callback, options = {}, useCapture = true) {
