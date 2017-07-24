@@ -1,4 +1,4 @@
-import Animator from 'Animator';
+import Animator from './Animator';
 
 export default class Diascope {
 	constructor(frame, reel, options = {}) {
