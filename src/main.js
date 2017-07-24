@@ -1,7 +1,6 @@
 export default class Diascope {
 	constructor(frame, reel, options = {}) {
 		this.options = Object.assign(getDefaultOptions(), options);
-		console.log(this.options);
 
 		this.elementNavigatePrevious = document.querySelector(options.selectorNavigatePrevious);
 		this.elementNavigateNext = document.querySelector(options.selectorNavigateNext);
