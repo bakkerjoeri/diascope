@@ -22,7 +22,6 @@
 
 .diascope__reel {
     display: inline-flex;
-    transition: transform .3s;
 }
 
 .diascope__cell {
