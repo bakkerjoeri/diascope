@@ -36,8 +36,8 @@ export default class Diascope {
 				this.options.shouldCenter
 			);
 
-			let animation = new Animation(this.elementReel, reelOffsetLeft, this.options.duration);
-			animation.start();
+			this.reelAnimation = new Animation(this.elementReel, reelOffsetLeft, this.options.duration);
+			this.reelAnimation.start();
 		}
 	}
 
