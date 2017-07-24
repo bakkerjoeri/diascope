@@ -150,7 +150,7 @@ function calculateLeftReelOffsetToBringSlidesIntoFrame(slides, reel, frame, shou
 		return (frameBounds.left - slidesBounds.left) - (frameBounds.left - reelBounds.left);
 	}
 
-	return (frameBounds.left - reelBounds.left);
+	return (reelBounds.left - frameBounds.left);
 }
 
 function getHorizontalBoundsOfSlides(slides) {
