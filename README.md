@@ -41,6 +41,12 @@ default: `false`
 
 If set to `true`, visible items are shown centered. Otherwise, they will stick to a side.
 
+#### `elementNavigateNext` (Element)
+Pass an `Element` that triggers `next()` when clicked.
+
+#### `elementNavigatePrevious` (Element)
+Pass an `Element` that triggers `previous()` when clicked.
+
 ### API
 An instance of Diascope has the following methods available:
 
@@ -49,3 +55,9 @@ An instance of Diascope has the following methods available:
 #### `previous()`
 
 #### `panSlides(pan)`
+
+#### `addElementNavigateNext(element)`
+Add an `Element` that calls `next()` when clicked.
+
+#### `addElementNavigatePrevious(element)`
+Add an `Element` that calls `previous()` when clicked.
