@@ -1,3 +1,5 @@
+import Animator from 'Animator';
+
 export default class Diascope {
 	constructor(frame, reel, options = {}) {
 		this.options = Object.assign(getDefaultOptions(), options);
@@ -34,7 +36,7 @@ export default class Diascope {
 				this.options.shouldCenter
 			);
 
-			this.elementReel.style.transform = `translateX(${reelOffsetLeft}px)`;
+			Animator.animateElementToHorizontalOffset(this.elementReel, reelOffsetLeft, this.options.speed);
 		}
 	}
 
@@ -53,6 +55,7 @@ export default class Diascope {
 
 function getDefaultOptions() {
 	return {
+		speed: 0.1,
 		step: 1,
 		loop: false,
 		shouldCenter: false,
