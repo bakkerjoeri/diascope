@@ -247,12 +247,12 @@ function getHorizontalBoundsOfSlides(slides) {
 	}
 }
 
-function isSlideInFrame(slide, frame) {
+function isSlideInFrame(slide, frame, part = 1) {
 	let slideBounds = slide.getBoundingClientRect();
 	let frameBounds = frame.getBoundingClientRect();
 
-	return slideBounds.left >= frameBounds.left
-		&& slideBounds.right <= frameBounds.right;
+	return (slideBounds.left + (slideBounds.width * (1 - part)) >= frameBounds.left)
+		&& (slideBounds.right - (slideBounds.width * (1 - part)) <= frameBounds.right);
 }
 
 function addEventListener(type, element, callback, options = {}, useCapture = true) {
