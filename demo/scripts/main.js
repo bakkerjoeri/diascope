@@ -10,7 +10,7 @@ navigatePrevious = document.querySelector('.js-diascope-navigate-previous');
 options = {
 	elementNavigateNext: navigateNext,
 	elementNavigatePrevious: navigatePrevious,
-	duration: 0.3,
+	duration: 250,
 	loop: true,
 };
 
