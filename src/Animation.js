@@ -44,7 +44,7 @@ export default class Animation {
 }
 
 function getCubicBezierForEasing(easing) {
-	if (typeof easing === 'object') {
+	if (typeof easing === 'object' && easing.length === 4) {
 		return CubicBezier.createCustomAnimation(
 			easing[0],
 			easing[1],

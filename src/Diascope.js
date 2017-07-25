@@ -7,6 +7,7 @@ export default class Diascope {
 		this.elementFrame = frame;
 		this.elementReel = reel;
 		this.elementsSlides = Array.from(this.elementReel.children);
+		this.animationEasing = options.animationEasing;
 
 		if (this.options.hasOwnProperty('elementNavigateNext')) {
 			this.addElementNavigateNext(this.options.elementNavigateNext);
@@ -51,6 +52,10 @@ export default class Diascope {
 		if (element instanceof Element) {
 			addEvent('click', element, this.previous.bind(this));
 		}
+	}
+
+	setAnimationEasing(easing) {
+		this.animationEasing = easing;
 	}
 }
 
