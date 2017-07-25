@@ -36,7 +36,7 @@ export default class Diascope {
 				this.options.shouldCenter
 			);
 
-			this.reelAnimation = new Animation(this.elementReel, reelOffsetLeft, this.options.duration);
+			this.reelAnimation = new Animation(this.elementReel, reelOffsetLeft, this.options.duration, this.animationEasing);
 			this.reelAnimation.start();
 		}
 	}
@@ -60,6 +60,7 @@ function getDefaultOptions() {
 		step: 1,
 		loop: false,
 		shouldCenter: false,
+		animationEasing: 'linear',
 	};
 }
 

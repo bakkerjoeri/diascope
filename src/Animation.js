@@ -1,10 +1,13 @@
+import CubicBezier from './CubicBezier';
+
 export default class Animation {
-	constructor(element, newPosition, duration) {
+	constructor(element, newPosition, duration, easing = 'linear') {
 		this.element = element;
 
 		this.startingPosition = getElementTransformTranslateX(element);
 		this.currentPosition = this.startingPosition;
 		this.newPosition = newPosition;
+		this.animationBezierCurve = getCubicBezierForEasing(easing);
 
 		this.startTime;
 		this.previousStepTime;
@@ -28,7 +31,7 @@ export default class Animation {
 	animationStep(currentTime) {
 		let time = currentTime - this.startTime;
 		let distance = this.newPosition - this.startingPosition;
-		let positionChange = calculatePositionChange(time, distance, this.duration);
+		let positionChange = calculatePositionChange(time, distance, this.duration, this.animationBezierCurve);
 
 		this.currentPosition = this.startingPosition + positionChange;
 
@@ -40,54 +43,42 @@ export default class Animation {
 	}
 }
 
+function getCubicBezierForEasing(easing) {
+	if (typeof easing === 'object') {
+		return CubicBezier.createCustomAnimation(
+			easing[0],
+			easing[1],
+			easing[2],
+			easing[3]
+		);
+	}
+
+	switch (easing) {
+		case 'ease':
+			return CubicBezier.createEase();
+		case 'easeIn':
+			return CubicBezier.createEaseIn();
+		case 'easeOut':
+			return CubicBezier.createEaseOut();
+		case 'easeInOut':
+			return CubicBezier.createEaseInOut();
+		case 'linear':
+		default:
+			return CubicBezier.createLinear();
+	}
+}
+
 function renderElementAtHorizontalOffset(element, offset) {
 	if (element instanceof Element) {
 		element.style.transform = `translateX(${offset}px)`;
 	}
 }
 
-function calculatePositionChange(time, distance, duration) {
+function calculatePositionChange(time, distance, duration, animationBezierCurve) {
 	let progress = time / duration;
-	let positionChange = distance * calculatePointOnCubicBezier(progress, 0.25, 1, .25, 1);
+	let positionChange = distance * animationBezierCurve.calculateVerticalForTime(progress);
 
 	return positionChange;
-}
-
-function calculatePointOnCubicBezier(t, p1x = 0, p1y = 0, p2x = 0, p2y = 0) {
-	if (t < 0) {
-		t = 0;
-	}
-
-	if (t > 1) {
-		t = 1;
-	}
-
-	let p0, p1, p2, p3;
-
-	p0 = {
-		x: 0,
-		y: 0,
-	}
-
-	p1 = {
-		x: p1x,
-		y: p1y,
-	}
-
-	p2 = {
-		x: p2x,
-		y: p2y,
-	}
-
-	p3 = {
-		x: 1,
-		y: 1,
-	}
-
-	return (Math.pow((1 - t), 3) * p0.y)
-		+ (3 * Math.pow((1 - t), 2) * t * p1.y)
-		+ (3 * (1 - t) * Math.pow(t, 2) * p2.y)
-		+ (Math.pow(t, 3) * p3.y);
 }
 
 function getElementTransformTranslateX(element) {
