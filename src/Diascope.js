@@ -2,46 +2,59 @@ import Animation from './Animation';
 
 export default class Diascope {
 	constructor(frame, reel, options = {}) {
-		this.options = Object.assign(getDefaultOptions(), options);
+		options = Object.assign(getDefaultOptions(), options);
 
 		this.elementFrame = frame;
 		this.elementReel = reel;
 		this.elementsSlides = Array.from(this.elementReel.children);
 		this.animationEasing = options.animationEasing;
+		this.step = options.step;
+		this.loop = options.loop;
+		this.shouldCenter = options.shouldCenter;
+		this.duration = options.duration;
 
-		if (this.options.hasOwnProperty('elementNavigateNext')) {
-			this.addElementNavigateNext(this.options.elementNavigateNext);
+		this.onSlideStart = options.onSlideStart;
+		this.onSlideEnd = options.onSlideEnd;
+		this.onSlide = options.onSlide;
+
+		if (options.hasOwnProperty('elementNavigateNext')) {
+			this.addElementNavigateNext(options.elementNavigateNext);
 		}
 
-		if (this.options.hasOwnProperty('elementNavigatePrevious')) {
-			this.addElementNavigatePrevious(this.options.elementNavigatePrevious);
+		if (options.hasOwnProperty('elementNavigatePrevious')) {
+			this.addElementNavigatePrevious(options.elementNavigatePrevious);
 		}
 	}
 
 	next() {
-		this.panSlides(this.options.step);
+		this.panSlides(this.step);
 	}
 
 	previous() {
-		this.panSlides(this.options.step * -1);
+		this.panSlides(this.step * -1);
 	}
 
 	panSlides(pan) {
-		let newSlides = findNewVisibleSlides(pan, this.elementsSlides, this.elementFrame, this.options.loop);
+		let newSlides = findNewVisibleSlides(pan, this.elementsSlides, this.elementFrame, this.loop);
 
 		if (newSlides.length > 0) {
 			let reelOffsetLeft = calculateLeftReelOffsetToBringSlidesIntoFrame(
 				newSlides,
 				this.elementReel,
 				this.elementFrame,
-				this.options.shouldCenter
+				this.shouldCenter
 			);
 
 			if (this.reelAnimation) {
-				this.reelAnimation.cancel();
+				this.reelAnimation.end();
 			}
 
-			this.reelAnimation = new Animation(this.elementReel, reelOffsetLeft, this.options.duration, this.animationEasing);
+			this.reelAnimation = new Animation(this.elementReel, reelOffsetLeft, this.duration, this.animationEasing, {
+				onStart: this.onSlideStart,
+				onEnd: this.onSlideEnd,
+				onStep: this.onSlide
+			});
+
 			this.reelAnimation.start();
 		}
 	}
