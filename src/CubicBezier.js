@@ -163,6 +163,7 @@ export default class CubicBezier {
  * @param  {Number} value
  * @param  {Number} lower 	The lower boundary.
  * @param  {Number} upper 	The upper boundary.
+ *
  * @return {Number}
  */
 function getValueCorrectedForBounds(value, lower, upper) {
