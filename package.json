@@ -7,6 +7,7 @@
     "watch": "NODE_ENV=development webpack -d --watch --progress --config webpack.config.js",
     "build": "NODE_ENV=production webpack -p --progress --config webpack.config.js"
   },
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://joeribakker@github.com/joeribakker/diascope.git"
