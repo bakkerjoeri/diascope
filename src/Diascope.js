@@ -37,6 +37,10 @@ export default class Diascope {
 				this.options.shouldCenter
 			);
 
+			if (this.reelAnimation) {
+				this.reelAnimation.cancel();
+			}
+
 			this.reelAnimation = new Animation(this.elementReel, reelOffsetLeft, this.options.duration, this.animationEasing);
 			this.reelAnimation.start();
 		}
