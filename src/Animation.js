@@ -8,7 +8,7 @@ export default class Animation {
 
 		this.startTime;
 		this.previousStepTime;
-		this.duration = duration * 1000;
+		this.duration = duration;
 	}
 
 	start() {
