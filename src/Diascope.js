@@ -1,4 +1,5 @@
 import Animation from './Animation';
+import Cursor from './Cursor';
 
 export default class Diascope {
 	constructor(frame, reel, options = {}) {
@@ -7,12 +8,16 @@ export default class Diascope {
 		this.elementFrame = frame;
 		this.elementReel = reel;
 		this.elementsSlides = Array.from(this.elementReel.children);
+
 		this.animationEasing = options.animationEasing;
 		this.step = options.step;
 		this.loop = options.loop;
 		this.shouldCenter = options.shouldCenter;
 		this.duration = options.duration;
 		this.drag = options.drag;
+
+		this.isDragging = false;
+		this.cursor = new Cursor();
 
 		this.setOnSlideStart(options.onSlideStart);
 		this.setOnSlideEnd(options.onSlideEnd);
@@ -25,6 +30,10 @@ export default class Diascope {
 		if (options.hasOwnProperty('elementNavigatePrevious')) {
 			this.addElementNavigatePrevious(options.elementNavigatePrevious);
 		}
+
+		if (this.drag) {
+			this.initializeDragging(this.elementReel);
+		}
 	}
 
 	next() {
@@ -36,7 +45,7 @@ export default class Diascope {
 	}
 
 	panSlides(pan) {
-		let newSlides = findNewVisibleSlides(pan, this.elementsSlides, this.elementFrame, this.loop);
+		let newSlides = findSlidesForPanning(pan, this.elementsSlides, this.elementFrame, this.loop);
 
 		if (newSlides.length > 0) {
 			let reelOffsetLeft = calculateLeftReelOffsetToBringSlidesIntoFrame(
@@ -119,6 +128,58 @@ export default class Diascope {
 			this.onSlide = onSlide;
 		}
 	}
+
+	initializeDragging(reel) {
+		addEventListener('mousedown', reel, this.onDragStart.bind(this));
+		addEventListener('touchstart', reel, this.onDragStart.bind(this));
+
+		addEventListener('mousemove', document, this.onDrag.bind(this));
+		addEventListener('touchmove', document, this.onDrag.bind(this));
+
+		addEventListener('mouseup', document, this.onDragEnd.bind(this));
+		addEventListener('touchend', document, this.onDragEnd.bind(this));
+	}
+
+	onDragStart(event) {
+		if (this.drag) {
+			this.isDragging = true;
+			this.cursor.updateWithEvent(event);
+
+			this.dragReelOffsetStart = getElementTransformTranslateX(this.elementReel);
+			this.dragPositionStart = this.cursor.getCurrentPosition();
+		}
+	}
+
+	onDrag(event) {
+		if (this.drag && this.isDragging) {
+			this.cursor.updateWithEvent(event);
+			let dragPositionChangeHorizontal = this.cursor.getCurrentPosition().x - this.dragPositionStart.x;
+			renderElementAtHorizontalOffset(this.elementReel, this.dragReelOffsetStart + dragPositionChangeHorizontal);
+		}
+	}
+
+	onDragEnd() {
+		if (this.isDragging) {
+			this.isDragging = false;
+
+			let slidesForSnap = findSlidesForSnap(this.elementsSlides, this.elementFrame);
+			let reelOffsetLeft = calculateLeftReelOffsetToBringSlidesIntoFrame(slidesForSnap, this.elementReel, this.elementFrame, this.shouldCenter);
+
+			this.reelAnimation = new Animation(this.elementReel, reelOffsetLeft, this.duration, this.animationEasing, {
+				onStart: this.onSlideStart,
+				onEnd: this.onSlideEnd,
+				onStep: this.onSlide
+			});
+
+			this.reelAnimation.start();
+		}
+	}
+}
+
+function renderElementAtHorizontalOffset(element, offset) {
+	if (element instanceof Element) {
+		element.style.transform = `translateX(${offset}px)`;
+	}
 }
 
 function getDefaultOptions() {
@@ -132,7 +193,7 @@ function getDefaultOptions() {
 	};
 }
 
-function findNewVisibleSlides(pan, slides, frame, shouldLoop) {
+function findSlidesForPanning(pan, slides, frame, shouldLoop) {
 	const firstSlideIndex = 0;
 	const lastSlideIndex = slides.length - 1;
 
@@ -176,6 +237,53 @@ function findNewVisibleSlides(pan, slides, frame, shouldLoop) {
 	return newSlides;
 }
 
+function findSlidesForSnap(slides, frame) {
+	let newSlides = findSlidesInFrameForPart(slides, frame, 1);
+	let slideClosestToEdge = findSlideClosestToFrameEdge(slides, frame);
+
+	if (newSlides.indexOf(slideClosestToEdge) === -1) {
+		newSlides.push(slideClosestToEdge);
+	}
+
+	return newSlides;
+}
+
+function calculateLeftReelOffsetToBringSlidesIntoFrame(slides, reel, frame, shouldCenter = false) {
+	let slidesBounds = getHorizontalBoundsOfSlides(slides);
+	let reelBounds = reel.getBoundingClientRect();
+	let frameBounds = frame.getBoundingClientRect();
+
+	let upperBoundary = 0;
+	let lowerBoundary = (frameBounds.width - reelBounds.width);
+
+	if (shouldCenter) {
+		let reelOffsetLeft = (reelBounds.left - slidesBounds.left) + ((frameBounds.width - slidesBounds.width) / 2);
+		return getValueCorrectedForBoundaries(reelOffsetLeft, lowerBoundary, upperBoundary);
+	}
+
+	if (slidesBounds.right > frameBounds.right) {
+		let reelOffsetLeft = (reelBounds.left - frameBounds.left) - (slidesBounds.right - frameBounds.right);
+		return getValueCorrectedForBoundaries(reelOffsetLeft, lowerBoundary, upperBoundary);
+	}
+
+	return getValueCorrectedForBoundaries((reelBounds.left - slidesBounds.left), lowerBoundary, upperBoundary);
+}
+
+/**
+ * Find any slides that are within the boundaries of a given frame for at least the given part.
+ *
+ * @param  {Element[]} 	slides	The slides to check for visibility.
+ * @param  {Element} 	frame	The frame in which slides are visible.
+ * @param  {Number}		part	The part of the card that should be in frame.
+ *
+ * @return {Element[]}			The completely visible slides.
+ */
+function findSlidesInFrameForPart(slides, frame, part) {
+	return slides.filter((slide) => {
+		return isSlideInFrame(slide, frame, part);
+	});
+}
+
 function findIndexOfFirstVisibleSlideInFrame(slides, frame) {
 	for (let currentSlideIndex = 0; currentSlideIndex < slides.length; currentSlideIndex++) {
 		if (isSlideInFrame(slides[currentSlideIndex], frame)) {
@@ -196,34 +304,51 @@ function findIndexOfLastVisibleSlideInFrame(slides, frame) {
 	return lastVisibleSlideIndex;
 }
 
-function calculateLeftReelOffsetToBringSlidesIntoFrame(slides, reel, frame, shouldCenter = false) {
-	let slidesBounds = getHorizontalBoundsOfSlides(slides);
-	let reelBounds = reel.getBoundingClientRect();
-	let frameBounds = frame.getBoundingClientRect();
+function findSlideClosestToFrameEdge(slides, frame) {
+	let smallestDistanceFromEdge;
+	let slideWithSmallestDistanceFromEdge;
 
-	if (shouldCenter) {
-		let reelOffsetLeft = (frameBounds.left - slidesBounds.left) - (frameBounds.left - reelBounds.left) + ((frameBounds.width - slidesBounds.width) / 2);
+	for (let currentSlideIndex = 0; currentSlideIndex < slides.length; currentSlideIndex++) {
+		let currentSlide = slides[currentSlideIndex];
 
-		if ((reelOffsetLeft * -1) > (reelBounds.width - frameBounds.width)) {
-			return (frameBounds.width - reelBounds.width);
+		let distanceFromLeftEdge = calculateDistanceBetweenLeftEdgesOfElements(currentSlide, frame);
+		let distanceFromRightEdge = calculateDistanceBetweenRightEdgesOfElements(currentSlide, frame);
+
+		if (smallestDistanceFromEdge === undefined || smallestDistanceFromEdge > Math.min(distanceFromLeftEdge, distanceFromRightEdge)) {
+			smallestDistanceFromEdge = Math.min(distanceFromLeftEdge, distanceFromRightEdge);
+			slideWithSmallestDistanceFromEdge = currentSlide;
 		}
-
-		if (reelOffsetLeft >= 0) {
-			return 0;
-		}
-
-		return reelOffsetLeft;
 	}
 
-	if (slidesBounds.right > frameBounds.right) {
-		return (reelBounds.left - frameBounds.left) - (slidesBounds.right - frameBounds.right);
+	return slideWithSmallestDistanceFromEdge;
+}
+
+function calculateDistanceBetweenLeftEdgesOfElements(firstElement, secondElement) {
+	if (firstElement instanceof Element && secondElement instanceof Element) {
+		return Math.abs(firstElement.getBoundingClientRect().left - secondElement.getBoundingClientRect().left);
 	}
 
-	if (slidesBounds.left < frameBounds.left) {
-		return (reelBounds.left - slidesBounds.left);
+	return 0;
+}
+
+function calculateDistanceBetweenRightEdgesOfElements(firstElement, secondElement) {
+	if (firstElement instanceof Element && secondElement instanceof Element) {
+		return Math.abs(firstElement.getBoundingClientRect().right - secondElement.getBoundingClientRect().right);
 	}
 
-	return (frameBounds.left - slidesBounds.left) - (frameBounds.left - reelBounds.left);
+	return 0;
+}
+
+function getValueCorrectedForBoundaries(value, lower, upper) {
+	if (value < lower) {
+		return lower;
+	}
+
+	if (value > upper) {
+		return upper;
+	}
+
+	return value;
 }
 
 function getHorizontalBoundsOfSlides(slides) {
@@ -304,4 +429,23 @@ function doesSupportPassive() {
 	}
 
 	return supportsPassive;
+}
+
+function getElementTransformTranslateX(element) {
+	if (window.getComputedStyle) {
+		let style = window.getComputedStyle(element);
+		let calculatedTransformation = style.transform || style.webkitTransform || style.mozTransform;
+
+		let transformationMatrix3D = calculatedTransformation.match(/^matrix3d\((.+)\)$/);
+		if (transformationMatrix3D) {
+			return parseFloat(transformationMatrix3D[1].split(', ')[13]);
+		}
+
+		let transformationMatrix = calculatedTransformation.match(/^matrix\((.+)\)$/);
+		if (transformationMatrix) {
+			return parseFloat(transformationMatrix[1].split(', ')[4]);
+		}
+	}
+
+	return 0;
 }
