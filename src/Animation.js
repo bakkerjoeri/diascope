@@ -1,13 +1,17 @@
 import CubicBezier from './CubicBezier';
 
 export default class Animation {
-	constructor(element, newPosition, duration, easing = 'linear') {
+	constructor(element, newPosition, duration, easing = 'linear', options = {}) {
 		this.element = element;
 
 		this.startingPosition = getElementTransformTranslateX(element);
 		this.currentPosition = this.startingPosition;
 		this.newPosition = newPosition;
 		this.animationBezierCurve = getCubicBezierForEasing(easing);
+
+		this.onStart = options.onStart;
+		this.onEnd = options.onEnd;
+		this.onStep = options.onStep;
 
 		this.startTime;
 		this.previousStepTime;
@@ -17,18 +21,26 @@ export default class Animation {
 	start() {
 		this.requestId = window.requestAnimationFrame((time) => {
 			this.startTime = time;
-			this.animationStep(time);
+			this.step(time);
 		});
-	}
 
-	cancel() {
-		if (this.requestId) {
-			window.cancelAnimationFrame(this.requestId);
-			delete this.requestId;
+		if (this.hasOwnProperty('onStart') && typeof this.onStart === 'function') {
+			this.onStart();
 		}
 	}
 
-	animationStep(currentTime) {
+	end() {
+		if (this.requestId) {
+			window.cancelAnimationFrame(this.requestId);
+			delete this.requestId;
+
+			if (this.hasOwnProperty('onEnd') && typeof this.onEnd === 'function') {
+				this.onEnd();
+			}
+		}
+	}
+
+	step(currentTime) {
 		let time = currentTime - this.startTime;
 		let distance = this.newPosition - this.startingPosition;
 		let positionChange = calculatePositionChange(time, distance, this.duration, this.animationBezierCurve);
@@ -37,8 +49,14 @@ export default class Animation {
 
 		renderElementAtHorizontalOffset(this.element, this.currentPosition);
 
+		if (this.hasOwnProperty('onStep') && typeof this.onStep === 'function') {
+			this.onStep();
+		}
+
 		if (this.currentPosition !== this.newPosition) {
-			this.requestId = window.requestAnimationFrame(this.animationStep.bind(this));
+			this.requestId = window.requestAnimationFrame(this.step.bind(this));
+		} else {
+			this.end();
 		}
 	}
 }

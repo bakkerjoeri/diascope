@@ -2,46 +2,59 @@ import Animation from './Animation';
 
 export default class Diascope {
 	constructor(frame, reel, options = {}) {
-		this.options = Object.assign(getDefaultOptions(), options);
+		options = Object.assign(getDefaultOptions(), options);
 
 		this.elementFrame = frame;
 		this.elementReel = reel;
 		this.elementsSlides = Array.from(this.elementReel.children);
 		this.animationEasing = options.animationEasing;
+		this.step = options.step;
+		this.loop = options.loop;
+		this.shouldCenter = options.shouldCenter;
+		this.duration = options.duration;
 
-		if (this.options.hasOwnProperty('elementNavigateNext')) {
-			this.addElementNavigateNext(this.options.elementNavigateNext);
+		this.setOnSlideStart(options.onSlideStart);
+		this.setOnSlideEnd(options.onSlideEnd);
+		this.setOnSlide(options.onSlide);
+
+		if (options.hasOwnProperty('elementNavigateNext')) {
+			this.addElementNavigateNext(options.elementNavigateNext);
 		}
 
-		if (this.options.hasOwnProperty('elementNavigatePrevious')) {
-			this.addElementNavigatePrevious(this.options.elementNavigatePrevious);
+		if (options.hasOwnProperty('elementNavigatePrevious')) {
+			this.addElementNavigatePrevious(options.elementNavigatePrevious);
 		}
 	}
 
 	next() {
-		this.panSlides(this.options.step);
+		this.panSlides(this.step);
 	}
 
 	previous() {
-		this.panSlides(this.options.step * -1);
+		this.panSlides(this.step * -1);
 	}
 
 	panSlides(pan) {
-		let newSlides = findNewVisibleSlides(pan, this.elementsSlides, this.elementFrame, this.options.loop);
+		let newSlides = findNewVisibleSlides(pan, this.elementsSlides, this.elementFrame, this.loop);
 
 		if (newSlides.length > 0) {
 			let reelOffsetLeft = calculateLeftReelOffsetToBringSlidesIntoFrame(
 				newSlides,
 				this.elementReel,
 				this.elementFrame,
-				this.options.shouldCenter
+				this.shouldCenter
 			);
 
 			if (this.reelAnimation) {
-				this.reelAnimation.cancel();
+				this.reelAnimation.end();
 			}
 
-			this.reelAnimation = new Animation(this.elementReel, reelOffsetLeft, this.options.duration, this.animationEasing);
+			this.reelAnimation = new Animation(this.elementReel, reelOffsetLeft, this.duration, this.animationEasing, {
+				onStart: this.onSlideStart,
+				onEnd: this.onSlideEnd,
+				onStep: this.onSlide
+			});
+
 			this.reelAnimation.start();
 		}
 	}
@@ -58,8 +71,58 @@ export default class Diascope {
 		}
 	}
 
+	/**
+	 * Set the animation easing function. This can be a string containing
+	 * one of the predefined easing keywords:
+	 *
+	 * - "linear"
+	 * - "ease"
+	 * - "easeIn"
+	 * - "easeOut"
+	 * - "easeInOut"
+	 *
+	 * Alternatively, you can pass an array containing the coordinates of
+	 * control point 1 and 2 on the animation cubic bezier curve, like so:
+	 *
+	 * [p1x, p1y, p2x, p2y]
+	 *
+	 * @param {string|array} easing
+	 */
 	setAnimationEasing(easing) {
 		this.animationEasing = easing;
+	}
+
+	/**
+	 * Set a method that is called when the reel starts changing position.
+	 *
+	 * @param {function} onSlideStart
+	 */
+	setOnSlideStart(onSlideStart) {
+		if (typeof onSlideStart === 'function') {
+			this.onSlideStart = onSlideStart;
+		}
+	}
+
+	/**
+	 * Set a method that is called when the reel is done changing position.
+	 *
+	 * @param {function} onSlideEnd
+	 */
+	setOnSlideEnd(onSlideEnd) {
+		if (typeof onSlideEnd === 'function') {
+			this.onSlideEnd = onSlideEnd;
+		}
+	}
+
+	/**
+	 * Set a method that is called throughout on each step of changing reel position.
+	 *
+	 * @param {function} onSlide
+	 */
+	setOnSlide(onSlide) {
+		if (typeof onSlide === 'function') {
+			this.onSlide = onSlide;
+		}
 	}
 }
 

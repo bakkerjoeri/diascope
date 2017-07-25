@@ -46,7 +46,7 @@ Pass an `Element` that triggers `next()` when clicked.
 #### `elementNavigatePrevious` (Element)
 Pass an `Element` that triggers `previous()` when clicked.
 
-#### `animationEasing` (string|array)
+#### `animationEasing` (String|Array)
 default: `"linear"`
 
 You can define the easing function that should be used for the animation of the reel. You can pass a keyword `String` to set it to a predefined cubic bezier curve:
@@ -62,6 +62,15 @@ Alternatively, you can pass an `Array` with the coordinates of the second and th
 
 This syntax follows the same argument order as CSS' `cubic-bezier` timing function. To understand cubic bezier curves in relation to animation a little better, check out [Lea Verou's cubic bezier playground](http://cubic-bezier.com).
 
+#### `onSlideStart` (Function)
+A callback function that is called when the reel's position change starts.
+
+#### `onSlideEnd` (Function)
+A callback function that is called when the reel's position change ends.
+
+#### `onSlide` (Function)
+A callback function that is called with each step of the reel's position change.
+
 ### API
 An instance of Diascope has the following methods available:
 
@@ -72,10 +81,20 @@ An instance of Diascope has the following methods available:
 #### `panSlides(pan)`
 
 #### `addElementNavigateNext(element)`
+* **element** (Element)
 Add an `Element` that calls `next()` when clicked.
 
 #### `addElementNavigatePrevious(element)`
 Add an `Element` that calls `previous()` when clicked.
 
 #### `setAnimationEasing(easing)`
-* **easing** (string|array)
+* **easing** (String|Array)
+
+#### `setOnSlideStart(onSlideStart)`
+* **onSlideStart** (Function)
+
+#### `setOnSlideEnd(onSlideEnd)`
+* **onSlideEnd** (Function)
+
+#### `setOnSlide(onSlide)`
+* **onSlide** (Function)
