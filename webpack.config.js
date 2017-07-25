@@ -6,7 +6,7 @@ module.exports = () => {
 	const env = process.env.NODE_ENV || 'production';
 
 	let webpackConfig = {
-		entry: './src/main.js',
+		entry: './src/Diascope.js',
 		output: {
 			path: path.resolve('./dist'),
 			publicPath: '/',

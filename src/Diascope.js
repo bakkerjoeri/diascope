@@ -1,3 +1,5 @@
+import Animation from './Animation';
+
 export default class Diascope {
 	constructor(frame, reel, options = {}) {
 		this.options = Object.assign(getDefaultOptions(), options);
@@ -5,6 +7,7 @@ export default class Diascope {
 		this.elementFrame = frame;
 		this.elementReel = reel;
 		this.elementsSlides = Array.from(this.elementReel.children);
+		this.animationEasing = options.animationEasing;
 
 		if (this.options.hasOwnProperty('elementNavigateNext')) {
 			this.addElementNavigateNext(this.options.elementNavigateNext);
@@ -34,7 +37,12 @@ export default class Diascope {
 				this.options.shouldCenter
 			);
 
-			this.elementReel.style.transform = `translateX(${reelOffsetLeft}px)`;
+			if (this.reelAnimation) {
+				this.reelAnimation.cancel();
+			}
+
+			this.reelAnimation = new Animation(this.elementReel, reelOffsetLeft, this.options.duration, this.animationEasing);
+			this.reelAnimation.start();
 		}
 	}
 
@@ -49,13 +57,19 @@ export default class Diascope {
 			addEvent('click', element, this.previous.bind(this));
 		}
 	}
+
+	setAnimationEasing(easing) {
+		this.animationEasing = easing;
+	}
 }
 
 function getDefaultOptions() {
 	return {
+		duration: 0.1,
 		step: 1,
 		loop: false,
 		shouldCenter: false,
+		animationEasing: 'linear',
 	};
 }
 
