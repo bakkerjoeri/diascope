@@ -42,7 +42,7 @@ export default class CubicBezier {
 	 * @return {Number}   	The y coordinate of the point on the curve at given time t.
 	 */
 	calculateVerticalForTime(t) {
-		t = getValueCorrectedForBounds(t, 0, 1);
+		t = getValueCorrectedForBoundaries(t, 0, 1);
 
 		return (Math.pow((1 - t), 3) * this.p0.y)
 			+ (3 * Math.pow((1 - t), 2) * t * this.p1.y)
@@ -57,7 +57,7 @@ export default class CubicBezier {
 	 * @return {Number}   	The x coordinate of the point on the curve at given time t.
 	 */
 	calculateHorizontalForTime(t) {
-		t = getValueCorrectedForBounds(t, 0, 1);
+		t = getValueCorrectedForBoundaries(t, 0, 1);
 
 		return (Math.pow((1 - t), 3) * this.p0.x)
 			+ (3 * Math.pow((1 - t), 2) * t * this.p1.x)
@@ -166,7 +166,7 @@ export default class CubicBezier {
  *
  * @return {Number}
  */
-function getValueCorrectedForBounds(value, lower, upper) {
+function getValueCorrectedForBoundaries(value, lower, upper) {
 	if (value < lower) {
 		return lower;
 	}
