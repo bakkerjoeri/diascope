@@ -33,10 +33,6 @@ export default class Cursor {
 			x: newPosition.x - this.positionPrevious.x,
 			y: newPosition.y - this.positionPrevious.y,
 		}
-
-		console.log(this.getCurrentPosition());
-		console.log(this.getPreviousPosition());
-		console.log(this.getChange());
 	}
 
 	getCurrentPosition() {
