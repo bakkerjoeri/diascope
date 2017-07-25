@@ -279,8 +279,10 @@ function addEvent(type, element, callback, options = {}, useCapture = true) {
 		}
 
 		element.addEventListener(type, callback, options, useCapture);
-	} else {
+	} else if (element.addEventListener) {
 		element.addEventListener(type, callback, useCapture);
+	} else {
+		element.attachEvent(`on${type}`, callback);
 	}
 }
 
