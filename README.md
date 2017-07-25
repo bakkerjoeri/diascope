@@ -76,3 +76,6 @@ Add an `Element` that calls `next()` when clicked.
 
 #### `addElementNavigatePrevious(element)`
 Add an `Element` that calls `previous()` when clicked.
+
+#### `setAnimationEasing(easing)`
+* **easing** (string|array)
