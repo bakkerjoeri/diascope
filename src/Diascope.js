@@ -13,9 +13,9 @@ export default class Diascope {
 		this.shouldCenter = options.shouldCenter;
 		this.duration = options.duration;
 
-		this.onSlideStart = options.onSlideStart;
-		this.onSlideEnd = options.onSlideEnd;
-		this.onSlide = options.onSlide;
+		this.setOnSlideStart(options.onSlideStart);
+		this.setOnSlideEnd(options.onSlideEnd);
+		this.setOnSlide(options.onSlide);
 
 		if (options.hasOwnProperty('elementNavigateNext')) {
 			this.addElementNavigateNext(options.elementNavigateNext);
@@ -71,8 +71,58 @@ export default class Diascope {
 		}
 	}
 
+	/**
+	 * Set the animation easing function. This can be a string containing
+	 * one of the predefined easing keywords:
+	 *
+	 * - "linear"
+	 * - "ease"
+	 * - "easeIn"
+	 * - "easeOut"
+	 * - "easeInOut"
+	 *
+	 * Alternatively, you can pass an array containing the coordinates of
+	 * control point 1 and 2 on the animation cubic bezier curve, like so:
+	 *
+	 * [p1x, p1y, p2x, p2y]
+	 *
+	 * @param {string|array} easing
+	 */
 	setAnimationEasing(easing) {
 		this.animationEasing = easing;
+	}
+
+	/**
+	 * Set a method that is called when the reel starts changing position.
+	 *
+	 * @param {function} onSlideStart
+	 */
+	setOnSlideStart(onSlideStart) {
+		if (typeof onSlideStart === 'function') {
+			this.onSlideStart = onSlideStart;
+		}
+	}
+
+	/**
+	 * Set a method that is called when the reel is done changing position.
+	 *
+	 * @param {function} onSlideEnd
+	 */
+	setOnSlideEnd(onSlideEnd) {
+		if (typeof onSlideEnd === 'function') {
+			this.onSlideEnd = onSlideEnd;
+		}
+	}
+
+	/**
+	 * Set a method that is called throughout on each step of changing reel position.
+	 *
+	 * @param {function} onSlide
+	 */
+	setOnSlide(onSlide) {
+		if (typeof onSlide === 'function') {
+			this.onSlide = onSlide;
+		}
 	}
 }
 
