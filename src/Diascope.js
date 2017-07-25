@@ -12,6 +12,7 @@ export default class Diascope {
 		this.loop = options.loop;
 		this.shouldCenter = options.shouldCenter;
 		this.duration = options.duration;
+		this.drag = options.drag;
 
 		this.setOnSlideStart(options.onSlideStart);
 		this.setOnSlideEnd(options.onSlideEnd);
@@ -61,25 +62,19 @@ export default class Diascope {
 
 	addElementNavigateNext(element) {
 		if (element instanceof Element) {
-			addEvent('click', element, this.next.bind(this));
+			addEventListener('click', element, this.next.bind(this));
 		}
 	}
 
 	addElementNavigatePrevious(element) {
 		if (element instanceof Element) {
-			addEvent('click', element, this.previous.bind(this));
+			addEventListener('click', element, this.previous.bind(this));
 		}
 	}
 
 	/**
 	 * Set the animation easing function. This can be a string containing
-	 * one of the predefined easing keywords:
-	 *
-	 * - "linear"
-	 * - "ease"
-	 * - "easeIn"
-	 * - "easeOut"
-	 * - "easeInOut"
+	 * one of the predefined easing keywords: "linear|ease|easeIn|easeOut|easeInOut"
 	 *
 	 * Alternatively, you can pass an array containing the coordinates of
 	 * control point 1 and 2 on the animation cubic bezier curve, like so:
@@ -133,6 +128,7 @@ function getDefaultOptions() {
 		loop: false,
 		shouldCenter: false,
 		animationEasing: 'linear',
+		drag: false,
 	};
 }
 
@@ -259,7 +255,7 @@ function isSlideInFrame(slide, frame) {
 		&& slideBounds.right <= frameBounds.right;
 }
 
-function addEvent(type, element, callback, options = {}, useCapture = true) {
+function addEventListener(type, element, callback, options = {}, useCapture = true) {
 	/**
 	 * Browsers that support the `passive` option are those that allow
 	 * for the usage of the options parameter in event listeners.
