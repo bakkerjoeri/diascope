@@ -48,7 +48,7 @@ export default class Diascope {
 		let newSlides = findSlidesForPanning(pan, this.elementsSlides, this.elementFrame, this.loop);
 
 		if (newSlides.length > 0) {
-			let reelOffsetLeft = calculateLeftReelOffsetToBringSlidesIntoFrame(
+			let reelOffsetLeft = calculateReelOffsetToBringSlidesIntoFrame(
 				newSlides,
 				this.elementReel,
 				this.elementFrame,
@@ -163,7 +163,7 @@ export default class Diascope {
 			this.isDragging = false;
 
 			let slidesForSnap = findSlidesForSnap(this.elementsSlides, this.elementFrame);
-			let reelOffsetLeft = calculateLeftReelOffsetToBringSlidesIntoFrame(slidesForSnap, this.elementReel, this.elementFrame, this.shouldCenter);
+			let reelOffsetLeft = calculateReelOffsetToBringSlidesIntoFrame(slidesForSnap, this.elementReel, this.elementFrame, this.shouldCenter);
 
 			this.reelAnimation = new Animation(this.elementReel, reelOffsetLeft, this.duration, this.animationEasing, {
 				onStart: this.onSlideStart,
@@ -216,7 +216,6 @@ function findSlidesForPanning(pan, slides, frame, shouldLoop) {
 		return [slides[lastSlideIndex]];
 	}
 
-
 	if (lastVisibleSlideIndex + pan > lastSlideIndex) {
 		pan = lastSlideIndex - lastVisibleSlideIndex;
 		firstNewSlideIndex = lastSlideIndex - pan;
@@ -248,7 +247,25 @@ function findSlidesForSnap(slides, frame) {
 	return newSlides;
 }
 
-function calculateLeftReelOffsetToBringSlidesIntoFrame(slides, reel, frame, shouldCenter = false) {
+function calculateReelOffsetToBringSlidesIntoFrame(slides, reel, frame, shouldCenter = false) {
+	if (shouldCenter) {
+		return calculateReelOffsetForSlidesAlignCenter(slides, reel, frame);
+	}
+
+	if (shouldSlidesInFrameSnapLeft(slides, frame)) {
+		return calculateReelOffsetForSlidesAlignLeft(slides, reel, frame);
+	}
+
+	return calculateReelOffsetForSlidesAlignRight(slides, reel, frame);
+}
+
+function shouldSlidesInFrameSnapLeft(slides, frame) {
+	let slideClosestToEdge = findSlideClosestToFrameEdge(slides, frame);
+
+	return calculateDistanceBetweenLeftEdgesOfElements(slideClosestToEdge, frame) < calculateDistanceBetweenRightEdgesOfElements(slideClosestToEdge, frame);
+}
+
+function calculateReelOffsetForSlidesAlignLeft(slides, reel, frame) {
 	let slidesBounds = getHorizontalBoundsOfSlides(slides);
 	let reelBounds = reel.getBoundingClientRect();
 	let frameBounds = frame.getBoundingClientRect();
@@ -256,17 +273,35 @@ function calculateLeftReelOffsetToBringSlidesIntoFrame(slides, reel, frame, shou
 	let upperBoundary = 0;
 	let lowerBoundary = (frameBounds.width - reelBounds.width);
 
-	if (shouldCenter) {
-		let reelOffsetLeft = (reelBounds.left - slidesBounds.left) + ((frameBounds.width - slidesBounds.width) / 2);
-		return getValueCorrectedForBoundaries(reelOffsetLeft, lowerBoundary, upperBoundary);
-	}
+	let reelOffset = (reelBounds.left - slidesBounds.left);
 
-	if (slidesBounds.right > frameBounds.right) {
-		let reelOffsetLeft = (reelBounds.left - frameBounds.left) - (slidesBounds.right - frameBounds.right);
-		return getValueCorrectedForBoundaries(reelOffsetLeft, lowerBoundary, upperBoundary);
-	}
+	return getValueCorrectedForBoundaries(reelOffset, lowerBoundary, upperBoundary);
+}
 
-	return getValueCorrectedForBoundaries((reelBounds.left - slidesBounds.left), lowerBoundary, upperBoundary);
+function calculateReelOffsetForSlidesAlignRight(slides, reel, frame) {
+	let slidesBounds = getHorizontalBoundsOfSlides(slides);
+	let reelBounds = reel.getBoundingClientRect();
+	let frameBounds = frame.getBoundingClientRect();
+
+	let upperBoundary = 0;
+	let lowerBoundary = (frameBounds.width - reelBounds.width);
+
+	let reelOffsetLeft = (reelBounds.left - frameBounds.left) - (slidesBounds.right - frameBounds.right);
+
+	return getValueCorrectedForBoundaries(reelOffsetLeft, lowerBoundary, upperBoundary);
+}
+
+function calculateReelOffsetForSlidesAlignCenter(slides, reel, frame) {
+	let slidesBounds = getHorizontalBoundsOfSlides(slides);
+	let reelBounds = reel.getBoundingClientRect();
+	let frameBounds = frame.getBoundingClientRect();
+
+	let upperBoundary = 0;
+	let lowerBoundary = (frameBounds.width - reelBounds.width);
+
+	let reelOffsetLeft = (reelBounds.left - slidesBounds.left) + ((frameBounds.width - slidesBounds.width) / 2);
+
+	return getValueCorrectedForBoundaries(reelOffsetLeft, lowerBoundary, upperBoundary);
 }
 
 /**
