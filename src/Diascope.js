@@ -82,11 +82,11 @@ export default class Diascope {
 	}
 
 	initializeDragging(reel) {
-		addEventListener('mousedown', reel, this.onDragStart.bind(this));
-		addEventListener('touchstart', reel, this.onDragStart.bind(this));
+		addEventListener('mousedown', reel, this.onDragStart.bind(this), {passive: false});
+		addEventListener('touchstart', reel, this.onDragStart.bind(this), {passive: false});
 
-		addEventListener('mousemove', document, this.onDrag.bind(this));
-		addEventListener('touchmove', document, this.onDrag.bind(this));
+		addEventListener('mousemove', document, this.onDrag.bind(this), {passive: false});
+		addEventListener('touchmove', document, this.onDrag.bind(this), {passive: false});
 
 		addEventListener('mouseup', document, this.onDragEnd.bind(this));
 		addEventListener('touchend', document, this.onDragEnd.bind(this));
@@ -142,6 +142,8 @@ export default class Diascope {
 
 	onDragStart(event) {
 		if (this.drag) {
+			stopEventPropagation(event);
+
 			this.isDragging = true;
 			this.cursor.updateWithEvent(event);
 
@@ -152,6 +154,8 @@ export default class Diascope {
 
 	onDrag(event) {
 		if (this.drag && this.isDragging) {
+			preventEventDefaults(event);
+
 			this.cursor.updateWithEvent(event);
 			let dragPositionChangeHorizontal = this.cursor.getCurrentPosition().x - this.dragPositionStart.x;
 			renderElementAtHorizontalOffset(this.elementReel, this.dragReelOffsetStart + dragPositionChangeHorizontal);
@@ -414,7 +418,7 @@ function isSlideInFrame(slide, frame) {
 		&& (slideBounds.right <= frameBounds.right);
 }
 
-function addEventListener(type, element, callback, options = {}, useCapture = true) {
+function addEventListener(type, element, callback, options = {}, useCapture = false) {
 	/**
 	 * Browsers that support the `passive` option are those that allow
 	 * for the usage of the options parameter in event listeners.
@@ -429,7 +433,7 @@ function addEventListener(type, element, callback, options = {}, useCapture = tr
 		 *
 		 * See: https://developers.google.com/web/tools/lighthouse/audits/passive-event-listeners
 		 */
-		if (type === 'wheel' || type === 'mousewheel' || type === 'touchstart' || type === 'touchmove') {
+		if (!options.hasOwnProperty('passive') && (type === 'wheel' || type === 'mousewheel' || type === 'touchstart' || type === 'touchmove')) {
 			options.passive = true;
 		}
 
@@ -482,4 +486,28 @@ function getElementTransformTranslateX(element) {
 	}
 
 	return 0;
+}
+
+function preventEventDefaults(event) {
+	if (!event) {
+		event = window.event;
+	}
+
+	if (event.preventDefault) {
+		event.preventDefault();
+	}
+
+	event.returnValue = false;
+}
+
+function stopEventPropagation(event) {
+	if (!event) {
+		event = window.event;
+	}
+
+	if (event.stopPropagation) {
+		event.stopPropagation();
+	}
+
+	event.returnValue = false;
 }
