@@ -71,21 +71,23 @@ export default class Diascope {
 	}
 
 	initializeDragging(reel) {
-		addEventListener('mousedown', reel, this.onDragStart.bind(this), {passive: false});
-		addEventListener('touchstart', reel, this.onDragStart.bind(this), {passive: false});
+		addEventListener('mousedown', reel, this.onGrab.bind(this), {passive: false});
+		addEventListener('touchstart', reel, this.onGrab.bind(this), {passive: false});
 
 		addEventListener('mousemove', document, this.onDrag.bind(this), {passive: false});
 		addEventListener('touchmove', document, this.onDrag.bind(this), {passive: false});
 
-		addEventListener('mouseup', document, this.onDragEnd.bind(this));
-		addEventListener('touchend', document, this.onDragEnd.bind(this));
+		addEventListener('mouseup', document, this.onDragEnd.bind(this), {passive: false});
+		addEventListener('touchend', document, this.onDragEnd.bind(this), {passive: false});
+
+		addEventListener('click', reel, this.preventClickInteractionDuringDragging.bind(this), {passive: false});
 	}
 
-	onDragStart(event) {
+	onGrab(event) {
 		if (this.drag) {
 			stopEventPropagation(event);
 
-			this.isDragging = true;
+			this.isGrabbed = true;
 			this.cursor.updateWithEvent(event);
 
 			this.dragReelOffsetStart = getElementTransformTranslateX(this.elementReel);
@@ -95,6 +97,10 @@ export default class Diascope {
 	}
 
 	onDrag(event) {
+		if (this.isGrabbed) {
+			this.isDragging = true;
+		}
+
 		if (this.drag && this.isDragging) {
 			preventEventDefaults(event);
 
@@ -110,9 +116,13 @@ export default class Diascope {
 		}
 	}
 
-	onDragEnd() {
+	onDragEnd(event) {
+		if (this.isGrabbed) {
+			this.isGrabbed = false;
+		}
+
 		if (this.isDragging) {
-			this.isDragging = false;
+			stopEventPropagation(event);
 
 			let slidesForSnap = findSlidesForSnap(this.elementsSlides, this.elementFrame);
 			let reelOffsetLeft = calculateReelOffsetToBringSlidesIntoFrame(slidesForSnap, this.elementReel, this.elementFrame, this.shouldCenter);
@@ -124,6 +134,17 @@ export default class Diascope {
 			});
 
 			this.reelAnimation.start();
+
+			// Wait to stop dragging so accidental link activation can be prevented.
+			setTimeout(() => {
+				this.isDragging = false;
+			}, 100);
+		}
+	}
+
+	preventClickInteractionDuringDragging(event) {
+		if (this.isDragging) {
+			stopEventPropagation(event)
 		}
 	}
 
