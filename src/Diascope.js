@@ -238,7 +238,7 @@ function findSlidesForPanning(pan, slides, frame, shouldLoop) {
 }
 
 function findSlidesForSnap(slides, frame) {
-	let newSlides = findSlidesInFrameForPart(slides, frame, 1);
+	let newSlides = findSlidesInFrame(slides, frame);
 	let slideClosestToEdge = findSlideClosestToFrameEdge(slides, frame);
 
 	if (newSlides.indexOf(slideClosestToEdge) === -1) {
@@ -274,13 +274,12 @@ function calculateLeftReelOffsetToBringSlidesIntoFrame(slides, reel, frame, shou
  *
  * @param  {Element[]} 	slides	The slides to check for visibility.
  * @param  {Element} 	frame	The frame in which slides are visible.
- * @param  {Number}		part	The part of the card that should be in frame.
  *
  * @return {Element[]}			The completely visible slides.
  */
-function findSlidesInFrameForPart(slides, frame, part) {
+function findSlidesInFrame(slides, frame) {
 	return slides.filter((slide) => {
-		return isSlideInFrame(slide, frame, part);
+		return isSlideInFrame(slide, frame);
 	});
 }
 
@@ -372,12 +371,12 @@ function getHorizontalBoundsOfSlides(slides) {
 	}
 }
 
-function isSlideInFrame(slide, frame, part = 1) {
+function isSlideInFrame(slide, frame) {
 	let slideBounds = slide.getBoundingClientRect();
 	let frameBounds = frame.getBoundingClientRect();
 
-	return (slideBounds.left + (slideBounds.width * (1 - part)) >= frameBounds.left)
-		&& (slideBounds.right - (slideBounds.width * (1 - part)) <= frameBounds.right);
+	return (slideBounds.left >= frameBounds.left)
+		&& (slideBounds.right <= frameBounds.right);
 }
 
 function addEventListener(type, element, callback, options = {}, useCapture = true) {
