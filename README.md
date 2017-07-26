@@ -7,6 +7,33 @@ $ npm install diascope --save
 ```
 
 ## Usage
+### HTML
+The structure of a slider has three parts:
+
+* **frame**: The frame is the window that shows the currently visible slides.
+* **reel**: The reel is displayed within the frame, and contains all the slides. Navigation through slides works by changing the offset of the reel. Because of this, you should make sure that the reel's `width` is determined by the slides it contains.
+* **slides**: All the available slides.
+
+![A diagram displaying the expected slider structure.](structure-diagram.png)
+
+Consider the following example:
+
+```
+<div class="diascope__frame js-diascope-frame">
+	<ul class="diascope__reel js-diascope-reel">
+		<li class="diascope__slide">slide 1</li>
+		<li class="diascope__slide">slide 2</li>
+		<li class="diascope__slide">slide 3</li>
+	</ul>
+</div>
+```
+
+The `reel` should be the immediate child of the `frame`. All the direct children of the `reel` are each considered a `slide`.
+
+I'm using `diascope` classnames, but since you're passing all elements in the constructor the naming is for you to decide.
+
+Additionally, I'm using an unordered list, but whether you use `ul` or `div` is irrelevant. In stead what you use should depend on the semantics that best describe the contents of your slider.
+
 
 ### Constructor
 ```
