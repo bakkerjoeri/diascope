@@ -29,11 +29,9 @@ default: `1`
 The number of new items to bring into view when navigating through the items.
 
 #### `loop` (Boolean)
-default: `true`
+default: `false`
 
-Whether to loop around the list.
-
-For instance, when the `position` is `4` and this is the *last item* in the list, calling `next()` with a `step` of `3` when `loop` is `true` will result in the `position` becoming to `2`.
+Whether to loop around the list when navigating past a first or last item.
 
 #### `shouldCenter` (Boolean)
 default: `false`
@@ -46,8 +44,23 @@ Pass an `Element` that triggers `next()` when clicked.
 #### `elementNavigatePrevious` (Element)
 Pass an `Element` that triggers `previous()` when clicked.
 
+#### `drag` (Boolean)
+default: `true`
+
+Enable touch and mouse dragging.
+
+#### `elastic` (Boolean)
+default: `true`
+
+Determines whether the reel can be dragged loosely out of bounds. The reel will bounce back once released.
+
 #### `animationEasing` (String|Array)
 default: `"linear"`
+
+#### `duration` (Number)
+default: `250`
+
+The duration of the animation in milliseconds.
 
 You can define the easing function that should be used for the animation of the reel. You can pass a keyword `String` to set it to a predefined cubic bezier curve:
 * `"linear"`
