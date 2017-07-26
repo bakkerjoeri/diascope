@@ -15,6 +15,7 @@ export default class Diascope {
 		this.shouldCenter = options.shouldCenter;
 		this.duration = options.duration;
 		this.drag = options.drag;
+		this.elastic = options.elastic;
 
 		this.isDragging = false;
 		this.cursor = new Cursor();
@@ -99,7 +100,13 @@ export default class Diascope {
 
 			this.cursor.updateWithEvent(event);
 			this.dragDistanceHorizontal = this.cursor.getCurrentPosition().x - this.dragPositionStart.x;
-			renderElementAtHorizontalOffset(this.elementReel, this.dragReelOffsetStart + this.dragDistanceHorizontal);
+			let reelOffset = getBoundaryCorrectedDragOffset(
+				this.dragReelOffsetStart + this.dragDistanceHorizontal,
+				this.elementReel,
+				this.elementFrame,
+				this.elastic,
+			);
+			renderElementAtHorizontalOffset(this.elementReel, reelOffset);
 		}
 	}
 
@@ -189,12 +196,13 @@ function renderElementAtHorizontalOffset(element, offset) {
 
 function getDefaultOptions() {
 	return {
-		duration: 0.1,
+		duration: 200,
 		step: 1,
+		animationEasing: 'linear',
 		loop: false,
 		shouldCenter: false,
-		animationEasing: 'linear',
-		drag: false,
+		drag: true,
+		elastic: true,
 	};
 }
 
@@ -376,6 +384,21 @@ function calculateDistanceBetweenRightEdgesOfElements(firstElement, secondElemen
 	}
 
 	return 0;
+}
+
+function getBoundaryCorrectedDragOffset(offset, reel, frame, elastic) {
+	let lowerBoundary = (frame.getBoundingClientRect().width - reel.getBoundingClientRect().width);
+	let offsetCorrectedForBoundaries = getValueCorrectedForBoundaries(offset, lowerBoundary, 0);
+
+	if (elastic === false) {
+		return offsetCorrectedForBoundaries;
+	}
+
+	if (offset - offsetCorrectedForBoundaries !== 0) {
+		return offsetCorrectedForBoundaries + (offset - offsetCorrectedForBoundaries) * 0.25;
+	}
+
+	return offset;
 }
 
 function getValueCorrectedForBoundaries(value, lower, upper) {
