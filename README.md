@@ -1,5 +1,5 @@
 # Diascope
-A JavaScript library to create a horizontal slider. It does not have any dependencies.
+Easily set up an item slider with touch & mouse drag interaction.
 
 ## Installation
 ```
