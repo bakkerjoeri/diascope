@@ -69,6 +69,57 @@ export default class Diascope {
 		}
 	}
 
+	initializeDragging(reel) {
+		addEventListener('mousedown', reel, this.onDragStart.bind(this), {passive: false});
+		addEventListener('touchstart', reel, this.onDragStart.bind(this), {passive: false});
+
+		addEventListener('mousemove', document, this.onDrag.bind(this), {passive: false});
+		addEventListener('touchmove', document, this.onDrag.bind(this), {passive: false});
+
+		addEventListener('mouseup', document, this.onDragEnd.bind(this));
+		addEventListener('touchend', document, this.onDragEnd.bind(this));
+	}
+
+	onDragStart(event) {
+		if (this.drag) {
+			stopEventPropagation(event);
+
+			this.isDragging = true;
+			this.cursor.updateWithEvent(event);
+
+			this.dragReelOffsetStart = getElementTransformTranslateX(this.elementReel);
+			this.dragPositionStart = this.cursor.getCurrentPosition();
+			this.dragDistanceHorizontal = 0;
+		}
+	}
+
+	onDrag(event) {
+		if (this.drag && this.isDragging) {
+			preventEventDefaults(event);
+
+			this.cursor.updateWithEvent(event);
+			this.dragDistanceHorizontal = this.cursor.getCurrentPosition().x - this.dragPositionStart.x;
+			renderElementAtHorizontalOffset(this.elementReel, this.dragReelOffsetStart + this.dragDistanceHorizontal);
+		}
+	}
+
+	onDragEnd() {
+		if (this.isDragging) {
+			this.isDragging = false;
+
+			let slidesForSnap = findSlidesForSnap(this.elementsSlides, this.elementFrame);
+			let reelOffsetLeft = calculateReelOffsetToBringSlidesIntoFrame(slidesForSnap, this.elementReel, this.elementFrame, this.shouldCenter);
+
+			this.reelAnimation = new Animation(this.elementReel, reelOffsetLeft, this.duration, this.animationEasing, {
+				onStart: this.onSlideStart,
+				onEnd: this.onSlideEnd,
+				onStep: this.onSlide
+			});
+
+			this.reelAnimation.start();
+		}
+	}
+
 	addElementNavigateNext(element) {
 		if (element instanceof Element) {
 			addEventListener('click', element, this.next.bind(this));
@@ -79,17 +130,6 @@ export default class Diascope {
 		if (element instanceof Element) {
 			addEventListener('click', element, this.previous.bind(this));
 		}
-	}
-
-	initializeDragging(reel) {
-		addEventListener('mousedown', reel, this.onDragStart.bind(this), {passive: false});
-		addEventListener('touchstart', reel, this.onDragStart.bind(this), {passive: false});
-
-		addEventListener('mousemove', document, this.onDrag.bind(this), {passive: false});
-		addEventListener('touchmove', document, this.onDrag.bind(this), {passive: false});
-
-		addEventListener('mouseup', document, this.onDragEnd.bind(this));
-		addEventListener('touchend', document, this.onDragEnd.bind(this));
 	}
 
 	/**
@@ -137,46 +177,6 @@ export default class Diascope {
 	setOnSlide(onSlide) {
 		if (typeof onSlide === 'function') {
 			this.onSlide = onSlide;
-		}
-	}
-
-	onDragStart(event) {
-		if (this.drag) {
-			stopEventPropagation(event);
-
-			this.isDragging = true;
-			this.cursor.updateWithEvent(event);
-
-			this.dragReelOffsetStart = getElementTransformTranslateX(this.elementReel);
-			this.dragPositionStart = this.cursor.getCurrentPosition();
-			this.dragDistanceHorizontal = 0;
-		}
-	}
-
-	onDrag(event) {
-		if (this.drag && this.isDragging) {
-			preventEventDefaults(event);
-
-			this.cursor.updateWithEvent(event);
-			this.dragDistanceHorizontal = this.cursor.getCurrentPosition().x - this.dragPositionStart.x;
-			renderElementAtHorizontalOffset(this.elementReel, this.dragReelOffsetStart + this.dragDistanceHorizontal);
-		}
-	}
-
-	onDragEnd() {
-		if (this.isDragging) {
-			this.isDragging = false;
-
-			let slidesForSnap = findSlidesForSnap(this.elementsSlides, this.elementFrame);
-			let reelOffsetLeft = calculateReelOffsetToBringSlidesIntoFrame(slidesForSnap, this.elementReel, this.elementFrame, this.shouldCenter);
-
-			this.reelAnimation = new Animation(this.elementReel, reelOffsetLeft, this.duration, this.animationEasing, {
-				onStart: this.onSlideStart,
-				onEnd: this.onSlideEnd,
-				onStep: this.onSlide
-			});
-
-			this.reelAnimation.start();
 		}
 	}
 }
