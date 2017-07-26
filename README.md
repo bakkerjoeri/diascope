@@ -44,15 +44,15 @@ Consider the following examples:
 
 .diascope__frame {
 	/* Frame width can be anything. */
-    width: 100%;
+	width: 100%;
 
 	/* Hide slides outside the frame. */
-    overflow: hidden;
+	overflow: hidden;
 }
 
 .diascope__reel {
 	/* Display the slides in a row. */
-    display: inline-flex;
+	display: inline-flex;
 }
 ```
 
@@ -61,23 +61,23 @@ Consider the following examples:
 
 .diascope__frame {
 	/* Frame width can be anything. */
-    width: 100%;
+	width: 100%;
 
 	/* Hide slides outside the frame. */
-    overflow: hidden;
+	overflow: hidden;
 
 	/* Prevent the reel and slides from wrapping
-    white-space: nowrap;
+	white-space: nowrap;
 }
 
 .diascope__reel {
 	/* Display inline. */
-    display: inline-block;
+	display: inline-block;
 }
 
 .diascope__slide {
 	/* Display the slides in a row. */
-    display: inline-block;
+	display: inline-block;
 }
 ```
 
