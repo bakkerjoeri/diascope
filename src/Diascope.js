@@ -79,6 +79,8 @@ export default class Diascope {
 
 		addEventListener('mouseup', document, this.onDragEnd.bind(this), {passive: false});
 		addEventListener('touchend', document, this.onDragEnd.bind(this), {passive: false});
+
+		addEventListener('click', reel, this.preventClickInteractionDuringDragging.bind(this), {passive: false});
 	}
 
 	onGrab(event) {
@@ -132,6 +134,17 @@ export default class Diascope {
 			});
 
 			this.reelAnimation.start();
+
+			// Wait to stop dragging so accidental link activation can be prevented.
+			setTimeout(() => {
+				this.isDragging = false;
+			}, 100);
+		}
+	}
+
+	preventClickInteractionDuringDragging(event) {
+		if (this.isDragging) {
+			stopEventPropagation(event)
 		}
 	}
 
