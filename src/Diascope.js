@@ -149,6 +149,7 @@ export default class Diascope {
 
 			this.dragReelOffsetStart = getElementTransformTranslateX(this.elementReel);
 			this.dragPositionStart = this.cursor.getCurrentPosition();
+			this.dragDistanceHorizontal = 0;
 		}
 	}
 
@@ -157,8 +158,8 @@ export default class Diascope {
 			preventEventDefaults(event);
 
 			this.cursor.updateWithEvent(event);
-			let dragPositionChangeHorizontal = this.cursor.getCurrentPosition().x - this.dragPositionStart.x;
-			renderElementAtHorizontalOffset(this.elementReel, this.dragReelOffsetStart + dragPositionChangeHorizontal);
+			this.dragDistanceHorizontal = this.cursor.getCurrentPosition().x - this.dragPositionStart.x;
+			renderElementAtHorizontalOffset(this.elementReel, this.dragReelOffsetStart + this.dragDistanceHorizontal);
 		}
 	}
 
