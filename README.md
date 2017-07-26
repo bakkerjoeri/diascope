@@ -34,6 +34,52 @@ I'm using `diascope` classnames, but since you're passing all elements in the co
 
 Additionally, I'm using an unordered list, but whether you use `ul` or `div` is irrelevant. In stead what you use should depend on the semantics that best describe the contents of your slider.
 
+### CSS
+To make sure the `reel` element has a width that spans all slides without getting cut off by its parent, the reel will have to be `inline`.
+
+Consider the following examples:
+
+```
+/* Styling using inline-flex on reel */
+
+.diascope__frame {
+	/* Frame width can be anything. */
+    width: 100%;
+
+	/* Hide slides outside the frame. */
+    overflow: hidden;
+}
+
+.diascope__reel {
+	/* Display the slides in a row. */
+    display: inline-flex;
+}
+```
+
+```
+/* Styling using inline-block on reel */
+
+.diascope__frame {
+	/* Frame width can be anything. */
+    width: 100%;
+
+	/* Hide slides outside the frame. */
+    overflow: hidden;
+
+	/* Prevent the reel and slides from wrapping
+    white-space: nowrap;
+}
+
+.diascope__reel {
+	/* Display inline. */
+    display: inline-block;
+}
+
+.diascope__slide {
+	/* Display the slides in a row. */
+    display: inline-block;
+}
+```
 
 ### Constructor
 ```
