@@ -7,18 +7,20 @@
 
 /* diascope */
 .diascope__frame {
-    width: 100%;
-    overflow: hidden;
-    white-space: nowrap;
+	/* Frame width can be anything. */
+	width: 100%;
+
+	/* Hide slides outside the frame. */
+	overflow: hidden;
 }
 
 .diascope__reel {
-    display: inline-block;
-    /*flex-wrap: nowrap;*/
+	/* Display the slides in a row. */
+	display: inline-flex;
 }
 
 .diascope__slide {
-    display: inline-block;
+    display: block;
     width: calc(90vw / 3);
     height: 200px;
 
