@@ -81,6 +81,17 @@ export default class Diascope {
 		}
 	}
 
+	initializeDragging(reel) {
+		addEventListener('mousedown', reel, this.onDragStart.bind(this));
+		addEventListener('touchstart', reel, this.onDragStart.bind(this));
+
+		addEventListener('mousemove', document, this.onDrag.bind(this));
+		addEventListener('touchmove', document, this.onDrag.bind(this));
+
+		addEventListener('mouseup', document, this.onDragEnd.bind(this));
+		addEventListener('touchend', document, this.onDragEnd.bind(this));
+	}
+
 	/**
 	 * Set the animation easing function. This can be a string containing
 	 * one of the predefined easing keywords: "linear|ease|easeIn|easeOut|easeInOut"
@@ -127,17 +138,6 @@ export default class Diascope {
 		if (typeof onSlide === 'function') {
 			this.onSlide = onSlide;
 		}
-	}
-
-	initializeDragging(reel) {
-		addEventListener('mousedown', reel, this.onDragStart.bind(this));
-		addEventListener('touchstart', reel, this.onDragStart.bind(this));
-
-		addEventListener('mousemove', document, this.onDrag.bind(this));
-		addEventListener('touchmove', document, this.onDrag.bind(this));
-
-		addEventListener('mouseup', document, this.onDragEnd.bind(this));
-		addEventListener('touchend', document, this.onDragEnd.bind(this));
 	}
 
 	onDragStart(event) {
