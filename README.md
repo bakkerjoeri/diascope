@@ -130,11 +130,6 @@ Determines whether the reel can be dragged loosely out of bounds. The reel will 
 #### `animationEasing` (String|Array)
 default: `"linear"`
 
-#### `duration` (Number)
-default: `250`
-
-The duration of the animation in milliseconds.
-
 You can define the easing function that should be used for the animation of the reel. You can pass a keyword `String` to set it to a predefined cubic bezier curve:
 * `"linear"`
 * `"ease"`
@@ -147,6 +142,11 @@ Alternatively, you can pass an `Array` with the coordinates of the second and th
 `[p1x, p1y, p2x, p2y]`
 
 This syntax follows the same argument order as CSS' `cubic-bezier` timing function. To understand cubic bezier curves in relation to animation a little better, check out [Lea Verou's cubic bezier playground](http://cubic-bezier.com).
+
+#### `duration` (Number)
+default: `250`
+
+The duration of the animation in milliseconds.
 
 #### `onSlideStart` (Function)
 A callback function that is called when the reel's position change starts.
