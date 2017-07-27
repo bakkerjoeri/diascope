@@ -1,6 +1,6 @@
 {
   "name": "diascope",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "An item slider",
   "main": "dist/diascope.min.js",
   "scripts": {
