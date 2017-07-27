@@ -70,6 +70,15 @@ export default class Diascope {
 		}
 	}
 
+	/**
+	 * Returns all slides that are completely visible inside the frame.
+	 *
+	 * @return {Element[]}
+	 */
+	getVisibleSlides() {
+		return findSlidesInFrame(this.elementsSlides, this.elementFrame);
+	}
+
 	initializeDragging(reel) {
 		addEventListener('mousedown', reel, this.onGrab.bind(this), {passive: false});
 		addEventListener('touchstart', reel, this.onGrab.bind(this), {passive: false});
