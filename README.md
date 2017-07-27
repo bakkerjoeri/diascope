@@ -166,6 +166,9 @@ An instance of Diascope has the following methods available:
 
 #### `panSlides(pan)`
 
+#### `getVisibleSlides()`
+Get all the slides that are currently fully visible in the frame.
+
 #### `addElementNavigateNext(element)`
 * **element** (Element)
 Add an `Element` that calls `next()` when clicked.
