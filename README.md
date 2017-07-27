@@ -167,7 +167,7 @@ An instance of Diascope has the following methods available:
 #### `panSlides(pan)`
 
 #### `getVisibleSlides()`
-Get all the slides that are currently fully visible in the frame.
+Get all the slides that are currently fully visible in the frame. If no slides are fully visible the *most* visible slide is returned.
 
 #### `addElementNavigateNext(element)`
 * **element** (Element)
