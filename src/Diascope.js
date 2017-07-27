@@ -356,9 +356,15 @@ function calculateReelOffsetForSlidesAlignCenter(slides, reel, frame) {
  * @return {Element[]}			The completely visible slides.
  */
 function findSlidesInFrame(slides, frame) {
-	return slides.filter((slide) => {
+	let slidesInFrame = slides.filter((slide) => {
 		return isSlideInFrame(slide, frame);
 	});
+
+	if (slidesInFrame.length > 0) {
+		return slidesInFrame;
+	}
+
+	return [findSlideClosestToFrameEdge(slides, frame)];
 }
 
 function findIndexOfFirstVisibleSlideInFrame(slides, frame) {
