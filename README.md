@@ -8,10 +8,10 @@ $ npm install diascope --save
 
 ## Usage
 ### HTML
-The structure of a slider has three parts:
+The structure of a slider has three important elements:
 
-* **frame**: The frame is the window that shows the currently visible slides.
-* **reel**: The reel is displayed within the frame, and contains all the slides. Navigation through slides works by changing the offset of the reel. Because of this, you should make sure that the reel's `width` is determined by the slides it contains.
+* **frame**: The frame element displays the currently visible slides.
+* **reel**: The reel element contains all the slides. Navigating through slides works by changing the offset of the reel, and thus changing which slides are visible.
 * **slides**: All the available slides.
 
 ![A diagram displaying the expected slider structure.](structure-diagram.png)
@@ -35,12 +35,10 @@ I'm using `diascope` classnames, but since you're passing all elements in the co
 Additionally, I'm using an unordered list, but whether you use `ul` or `div` is irrelevant. In stead what you use should depend on the semantics that best describe the contents of your slider.
 
 ### CSS
-To make sure the `reel` element has a width that spans all slides without getting cut off by its parent, the reel will have to be `inline`.
-
-Consider the following examples:
+To make your slides display in a row, you'll have to write some CSS:
 
 ```
-/* Styling using inline-flex on reel */
+/* Using `flex` on the reel */
 
 .diascope__frame {
 	/* Frame width can be anything. */
@@ -52,12 +50,17 @@ Consider the following examples:
 
 .diascope__reel {
 	/* Display the slides in a row. */
-	display: inline-flex;
+	display: flex;
+}
+
+.diascope__slide {
+	/* Display slides as blocks in stead of list items. */
+	display: block;
 }
 ```
 
 ```
-/* Styling using inline-block on reel */
+/* Using inline-block on the slides */
 
 .diascope__frame {
 	/* Frame width can be anything. */
@@ -66,13 +69,8 @@ Consider the following examples:
 	/* Hide slides outside the frame. */
 	overflow: hidden;
 
-	/* Prevent the reel and slides from wrapping
+	/* Prevent the reel and slides from wrapping */
 	white-space: nowrap;
-}
-
-.diascope__reel {
-	/* Display inline. */
-	display: inline-block;
 }
 
 .diascope__slide {
