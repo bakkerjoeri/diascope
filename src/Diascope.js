@@ -309,8 +309,8 @@ function shouldSlideSetInFrameSnapLeft(slideSet, frame) {
 }
 
 function calculateReelOffsetForSlideSetAlignLeft(slideSet, allSlides, frame) {
-	let slideSetBounds = getHorizontalBoundsOfSlides(slideSet);
-	let allSlidesBounds = getHorizontalBoundsOfSlides(allSlides);
+	let slideSetBounds = getHorizontalBoundariesOfElements(slideSet);
+	let allSlidesBounds = getHorizontalBoundariesOfElements(allSlides);
 	let frameBounds = frame.getBoundingClientRect();
 
 	let upperBoundary = 0;
@@ -322,8 +322,8 @@ function calculateReelOffsetForSlideSetAlignLeft(slideSet, allSlides, frame) {
 }
 
 function calculateReelOffsetForSlideSetAlignRight(slideSet, allSlides, frame) {
-	let slideSetBounds = getHorizontalBoundsOfSlides(slideSet);
-	let allSlidesBounds = getHorizontalBoundsOfSlides(allSlides);
+	let slideSetBounds = getHorizontalBoundariesOfElements(slideSet);
+	let allSlidesBounds = getHorizontalBoundariesOfElements(allSlides);
 	let frameBounds = frame.getBoundingClientRect();
 
 	let upperBoundary = 0;
@@ -335,8 +335,8 @@ function calculateReelOffsetForSlideSetAlignRight(slideSet, allSlides, frame) {
 }
 
 function calculateReelOffsetForSlideSetAlignCenter(slideSet, allSlides, frame) {
-	let slideSetBounds = getHorizontalBoundsOfSlides(slideSet);
-	let allSlidesBounds = getHorizontalBoundsOfSlides(allSlides);
+	let slideSetBounds = getHorizontalBoundariesOfElements(slideSet);
+	let allSlidesBounds = getHorizontalBoundariesOfElements(allSlides);
 	let frameBounds = frame.getBoundingClientRect();
 
 	let upperBoundary = 0;
@@ -413,7 +413,7 @@ function calculateDistanceBetweenRightEdgesOfElements(firstElement, secondElemen
 }
 
 function getBoundaryCorrectedDragOffset(offset, allSlides, frame, elastic) {
-	let lowerBoundary = (frame.getBoundingClientRect().width - getHorizontalBoundsOfSlides(allSlides).width);
+	let lowerBoundary = (frame.getBoundingClientRect().width - getHorizontalBoundariesOfElements(allSlides).width);
 	let offsetCorrectedForBoundaries = getValueCorrectedForBoundaries(offset, lowerBoundary, 0);
 
 	if (elastic === false) {
@@ -439,17 +439,17 @@ function getValueCorrectedForBoundaries(value, lower, upper) {
 	return value;
 }
 
-function getHorizontalBoundsOfSlides(slides) {
+function getHorizontalBoundariesOfElements(elements) {
 	let maxLeft;
 	let maxRight;
 
-	slides.forEach((slide) => {
-		if (maxLeft === undefined || slide.getBoundingClientRect().left < maxLeft) {
-			maxLeft = slide.getBoundingClientRect().left;
+	elements.forEach((element) => {
+		if (maxLeft === undefined || element.getBoundingClientRect().left < maxLeft) {
+			maxLeft = element.getBoundingClientRect().left;
 		}
 
-		if (maxRight === undefined || slide.getBoundingClientRect().right > maxRight) {
-			maxRight = slide.getBoundingClientRect().right;
+		if (maxRight === undefined || element.getBoundingClientRect().right > maxRight) {
+			maxRight = element.getBoundingClientRect().right;
 		}
 	});
 
