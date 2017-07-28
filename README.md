@@ -30,15 +30,13 @@ Consider the following example:
 
 The `reel` should be the immediate child of the `frame`. All the direct children of the `reel` are each considered a `slide`.
 
-I'm using `diascope` classnames, but since you're passing all elements in the constructor the naming is for you to decide.
-
-Additionally, I'm using an unordered list, but whether you use `ul` or `div` is irrelevant. In stead what you use should depend on the semantics that best describe the contents of your slider.
+I'm using `diascope` classnames, but since you're passing all elements in the constructor the naming is for you to decide. Additionally, I'm using an unordered list, but whether you use `ul` or `div` is irrelevant. In stead what you use should depend on the semantics that best describe the contents of your slider.
 
 ### CSS
-To make your slides display in a row, you'll have to write some CSS:
+To show your slides in a single line, you'll have to write some CSS. Below are two examples showing you how to do it with `flex` and `inline-block` respectively.
 
 ```
-/* Using `flex` on the reel */
+/* Using `display: flex` on the reel */
 
 .diascope__frame {
 	/* Frame width can be anything. */
@@ -60,7 +58,7 @@ To make your slides display in a row, you'll have to write some CSS:
 ```
 
 ```
-/* Using inline-block on the slides */
+/* Using `display: inline-block` on the slides */
 
 .diascope__frame {
 	/* Frame width can be anything. */
