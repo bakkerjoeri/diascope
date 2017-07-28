@@ -126,6 +126,10 @@ export default class Diascope {
 				this.elastic,
 			);
 			renderElementAtHorizontalOffset(this.elementReel, reelOffset);
+
+			if (typeof this.onSlide === 'function') {
+				this.onSlide();
+			}
 		}
 	}
 
@@ -141,7 +145,6 @@ export default class Diascope {
 			let reelOffsetLeft = calculateReelOffsetToBringSlideSetIntoFrame(slidesForSnap, this.elementsSlides, this.elementFrame, this.shouldCenter);
 
 			this.reelAnimation = new Animation(this.elementReel, reelOffsetLeft, this.duration, this.animationEasing, {
-				onStart: this.onSlideStart,
 				onEnd: this.onSlideEnd,
 				onStep: this.onSlide
 			});
