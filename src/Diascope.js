@@ -106,8 +106,12 @@ export default class Diascope {
 	}
 
 	onDrag(event) {
-		if (this.isGrabbed) {
+		if (this.isGrabbed && !this.isDragging) {
 			this.isDragging = true;
+
+			if (typeof this.onSlideStart === 'function') {
+				this.onSlideStart();
+			}
 		}
 
 		if (this.drag && this.isDragging) {
