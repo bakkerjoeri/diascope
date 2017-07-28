@@ -8,10 +8,10 @@ $ npm install diascope --save
 
 ## Usage
 ### HTML
-The structure of a slider has three parts:
+The structure of a slider has three important elements:
 
-* **frame**: The frame is the window that shows the currently visible slides.
-* **reel**: The reel is displayed within the frame, and contains all the slides. Navigation through slides works by changing the offset of the reel. Because of this, you should make sure that the reel's `width` is determined by the slides it contains.
+* **frame**: The frame element displays the currently visible slides.
+* **reel**: The reel element contains all the slides. Navigating through slides works by changing the offset of the reel, and thus changing which slides are visible.
 * **slides**: All the available slides.
 
 ![A diagram displaying the expected slider structure.](structure-diagram.png)
@@ -30,17 +30,13 @@ Consider the following example:
 
 The `reel` should be the immediate child of the `frame`. All the direct children of the `reel` are each considered a `slide`.
 
-I'm using `diascope` classnames, but since you're passing all elements in the constructor the naming is for you to decide.
-
-Additionally, I'm using an unordered list, but whether you use `ul` or `div` is irrelevant. In stead what you use should depend on the semantics that best describe the contents of your slider.
+I'm using `diascope` classnames, but since you're passing all elements in the constructor the naming is for you to decide. Additionally, I'm using an unordered list, but whether you use `ul` or `div` is irrelevant. In stead what you use should depend on the semantics that best describe the contents of your slider.
 
 ### CSS
-To make sure the `reel` element has a width that spans all slides without getting cut off by its parent, the reel will have to be `inline`.
-
-Consider the following examples:
+To show your slides in a single line, you'll have to write some CSS. Below are two examples showing you how to do it with `flex` and `inline-block` respectively.
 
 ```
-/* Styling using inline-flex on reel */
+/* Using `display: flex` on the reel */
 
 .diascope__frame {
 	/* Frame width can be anything. */
@@ -52,12 +48,17 @@ Consider the following examples:
 
 .diascope__reel {
 	/* Display the slides in a row. */
-	display: inline-flex;
+	display: flex;
+}
+
+.diascope__slide {
+	/* Display slides as blocks in stead of list items. */
+	display: block;
 }
 ```
 
 ```
-/* Styling using inline-block on reel */
+/* Using `display: inline-block` on the slides */
 
 .diascope__frame {
 	/* Frame width can be anything. */
@@ -66,13 +67,8 @@ Consider the following examples:
 	/* Hide slides outside the frame. */
 	overflow: hidden;
 
-	/* Prevent the reel and slides from wrapping
+	/* Prevent the reel and slides from wrapping */
 	white-space: nowrap;
-}
-
-.diascope__reel {
-	/* Display inline. */
-	display: inline-block;
 }
 
 .diascope__slide {
