@@ -16,12 +16,12 @@
 
 .diascope__reel {
 	/* Display the slides in a row. */
-	display: inline-flex;
+	display: flex;
 }
 
 .diascope__slide {
     display: block;
-    width: calc(90vw / 3);
+    flex: 0 0 25%;
     height: 200px;
 
     padding: 20px;
