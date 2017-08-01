@@ -131,12 +131,12 @@ export default class Diascope {
 			let cursorChange = this.cursor.getChange();
 			if (Math.abs(cursorChange.x) > Math.abs(cursorChange.y)) {
 				this.isDragging = true;
+
+				if (typeof this.onSlideStart === 'function') {
+					this.onSlideStart();
+				}
 			} else if (Math.abs(cursorChange.x) < Math.abs(cursorChange.y)) {
 				this.isGrabbed = false;
-			}
-
-			if (typeof this.onSlideStart === 'function') {
-				this.onSlideStart();
 			}
 		}
 
@@ -243,13 +243,13 @@ export default class Diascope {
 	}
 
 	onSlide() {
-		if (typeof slideCallback === 'function') {
+		if (typeof this.slideCallback === 'function') {
 			this.slideCallback();
 		}
 	}
 
 	onSlideStart() {
-		if (typeof slideStartCallback === 'function') {
+		if (typeof this.slideStartCallback === 'function') {
 			this.slideStartCallback();
 		}
 	}
@@ -258,7 +258,7 @@ export default class Diascope {
 		this.isPanning = false;
 		this.currentPanDistance = 0;
 
-		if (typeof slideEndCallback === 'function') {
+		if (typeof this.slideEndCallback === 'function') {
 			this.slideEndCallback();
 		}
 	}
