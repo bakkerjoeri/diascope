@@ -243,13 +243,13 @@ export default class Diascope {
 	}
 
 	onSlide() {
-		if (typeof slideCallback === 'function') {
+		if (typeof this.slideCallback === 'function') {
 			this.slideCallback();
 		}
 	}
 
 	onSlideStart() {
-		if (typeof slideStartCallback === 'function') {
+		if (typeof this.slideStartCallback === 'function') {
 			this.slideStartCallback();
 		}
 	}
@@ -258,7 +258,7 @@ export default class Diascope {
 		this.isPanning = false;
 		this.currentPanDistance = 0;
 
-		if (typeof slideEndCallback === 'function') {
+		if (typeof this.slideEndCallback === 'function') {
 			this.slideEndCallback();
 		}
 	}
