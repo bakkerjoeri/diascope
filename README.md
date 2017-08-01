@@ -144,13 +144,13 @@ default: `250`
 
 The duration of the animation in milliseconds.
 
-#### `onSlideStart` (Function)
+#### `slideStartCallback` (Function)
 A callback function that is called when the reel's position change starts.
 
-#### `onSlideEnd` (Function)
+#### `slideEndCallback` (Function)
 A callback function that is called when the reel's position change ends.
 
-#### `onSlide` (Function)
+#### `slideCallback` (Function)
 A callback function that is called with each step of the reel's position change.
 
 ### API
@@ -160,7 +160,8 @@ An instance of Diascope has the following methods available:
 
 #### `previous()`
 
-#### `panSlides(pan)`
+#### `panWithDistance(distance)`
+* **distance** (Number)
 
 #### `getVisibleSlides()`
 Get all the slides that are currently fully visible in the frame. If no slides are fully visible the *most* visible slide is returned.
@@ -175,11 +176,11 @@ Add an `Element` that calls `previous()` when clicked.
 #### `setAnimationEasing(easing)`
 * **easing** (String|Array)
 
-#### `setOnSlideStart(onSlideStart)`
-* **onSlideStart** (Function)
+#### `setSlideStartc(slideStartCallback)`
+* **slideStartCallback** (Function)
 
-#### `setOnSlideEnd(onSlideEnd)`
-* **onSlideEnd** (Function)
+#### `setSlideEndCallback(slideEndCallback)`
+* **slideEndCallback** (Function)
 
-#### `setOnSlide(onSlide)`
-* **onSlide** (Function)
+#### `setSlideCallaback(slideCallback)`
+* **slideCallback** (Function)
