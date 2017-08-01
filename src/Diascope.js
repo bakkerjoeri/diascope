@@ -94,7 +94,7 @@ export default class Diascope {
 	}
 
 	onGrab(event) {
-		if (this.drag) {
+		if (this.drag && (event.type === 'touchstart' || EventManager.isEventUnmodifiedLeftMouseDown(event))) {
 			this.cursor.updateWithEvent(event);
 			this.isGrabbed = true;
 
