@@ -131,12 +131,12 @@ export default class Diascope {
 			let cursorChange = this.cursor.getChange();
 			if (Math.abs(cursorChange.x) > Math.abs(cursorChange.y)) {
 				this.isDragging = true;
+
+				if (typeof this.onSlideStart === 'function') {
+					this.onSlideStart();
+				}
 			} else if (Math.abs(cursorChange.x) < Math.abs(cursorChange.y)) {
 				this.isGrabbed = false;
-			}
-
-			if (typeof this.onSlideStart === 'function') {
-				this.onSlideStart();
 			}
 		}
 
