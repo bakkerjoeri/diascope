@@ -1,28 +1,4 @@
 export default class EventManager {
-	static preventEventDefaults(event) {
-		if (!event) {
-			event = window.event;
-		}
-
-		if (event.preventDefault) {
-			event.preventDefault();
-		}
-
-		event.returnValue = false;
-	}
-
-	static stopEventPropagation(event) {
-		if (!event) {
-			event = window.event;
-		}
-
-		if (event.stopPropagation) {
-			event.stopPropagation();
-		}
-
-		event.returnValue = false;
-	}
-
 	static addEventListener(type, element, callback, options = {}, useCapture = false) {
 		/**
 		 * Browsers that support the `passive` option are those that allow
@@ -48,6 +24,38 @@ export default class EventManager {
 		} else {
 			element.attachEvent(`on${type}`, callback);
 		}
+	}
+
+	static isEventUnmodifiedLeftMouseDown(event) {
+		return event.button === 0
+			&& !event.ctrlKey
+			&& !event.shiftKey
+			&& !event.altKey
+			&& !event.metaKey;
+	}
+
+	static preventEventDefaults(event) {
+		if (!event) {
+			event = window.event;
+		}
+
+		if (event.preventDefault) {
+			event.preventDefault();
+		}
+
+		event.returnValue = false;
+	}
+
+	static stopEventPropagation(event) {
+		if (!event) {
+			event = window.event;
+		}
+
+		if (event.stopPropagation) {
+			event.stopPropagation();
+		}
+
+		event.returnValue = false;
 	}
 }
 
