@@ -18,12 +18,14 @@ export default class Diascope {
 		this.drag = options.drag;
 		this.elastic = options.elastic;
 
+		this.currentPanDistance = 0;
+		this.isPanning = false;
 		this.isDragging = false;
 		this.cursor = new Cursor();
 
-		this.setOnSlideStart(options.onSlideStart);
-		this.setOnSlideEnd(options.onSlideEnd);
-		this.setOnSlide(options.onSlide);
+		this.setSlideStartCallback(options.slideStartCallback);
+		this.setSlideEndCallback(options.slideEndCallback);
+		this.setSlideCallback(options.slideCallback);
 
 		if (options.hasOwnProperty('elementNavigateNext')) {
 			this.addElementNavigateNext(options.elementNavigateNext);
@@ -39,32 +41,50 @@ export default class Diascope {
 	}
 
 	next() {
-		this.panSlides(this.step);
+		if (this.currentPanDistance < 0) {
+			this.cancelPanning();
+		}
+
+		this.currentPanDistance = this.step;
+		this.panWithDistance(this.currentPanDistance);
 	}
 
 	previous() {
-		this.panSlides(this.step * -1);
+		if (this.currentPanDistance > 0) {
+			this.cancelPanning();
+		}
+
+		this.currentPanDistance = this.step * -1;
+		this.panWithDistance(this.currentPanDistance);
 	}
 
-	panSlides(pan) {
-		let newSlides = findSlidesForPanning(pan, this.elementsSlides, this.elementFrame, this.loop);
+	panWithDistance(pan) {
+		if (!this.isPanning) {
+			let newSlides = findSlidesForPanning(pan, this.elementsSlides, this.elementFrame, this.loop);
 
-		if (newSlides.length > 0) {
+			this.panSlidesIntoView(newSlides);
+		}
+	}
+
+	panSlidesIntoView(slides) {
+		if (!this.isPanning && slides.length > 0) {
+			this.isPanning = true;
+
 			let reelOffsetLeft = calculateReelOffsetToBringSlideSetIntoFrame(
-				newSlides,
+				slides,
 				this.elementsSlides,
 				this.elementFrame,
 				this.shouldCenter
 			);
 
 			if (this.reelAnimation) {
-				this.reelAnimation.end();
+				this.reelAnimation.destroy();
 			}
 
 			this.reelAnimation = new Animation(this.elementReel, reelOffsetLeft, this.duration, this.animationEasing, {
-				onStart: this.onSlideStart,
-				onEnd: this.onSlideEnd,
-				onStep: this.onSlide
+				onStart: this.onSlideStart.bind(this),
+				onEnd: this.onSlideEnd.bind(this),
+				onStep: this.onSlide.bind(this)
 			});
 
 			this.reelAnimation.start();
@@ -106,6 +126,7 @@ export default class Diascope {
 
 	onDrag(event) {
 		this.cursor.updateWithEvent(event);
+
 		if (this.isGrabbed && !this.isDragging) {
 			let cursorChange = this.cursor.getChange();
 			if (Math.abs(cursorChange.x) > Math.abs(cursorChange.y)) {
@@ -120,6 +141,7 @@ export default class Diascope {
 		}
 
 		if (this.drag && this.isDragging) {
+			this.cancelPanning();
 			EventManager.preventEventDefaults(event);
 
 			this.dragDistanceHorizontal = this.cursor.getCurrentPosition().x - this.dragPositionStart.x;
@@ -145,20 +167,12 @@ export default class Diascope {
 		if (this.isDragging) {
 			EventManager.stopEventPropagation(event);
 
-			let slidesForSnap = findSlidesForSnap(this.elementsSlides, this.elementFrame);
-			let reelOffsetLeft = calculateReelOffsetToBringSlideSetIntoFrame(slidesForSnap, this.elementsSlides, this.elementFrame, this.shouldCenter);
-
-			this.reelAnimation = new Animation(this.elementReel, reelOffsetLeft, this.duration, this.animationEasing, {
-				onEnd: this.onSlideEnd,
-				onStep: this.onSlide
-			});
-
-			this.reelAnimation.start();
-
-			// Wait to stop dragging so accidental link activation can be prevented.
+			// Delay drag end events slightly so other click and drag events are finished first.
 			setTimeout(() => {
 				this.isDragging = false;
-			}, 100);
+				let slidesForSnap = findSlidesForSnap(this.elementsSlides, this.elementFrame);
+				this.panSlidesIntoView(slidesForSnap);
+			}, 0);
 		}
 	}
 
@@ -198,34 +212,65 @@ export default class Diascope {
 	/**
 	 * Set a method that is called when the reel starts changing position.
 	 *
-	 * @param {function} onSlideStart
+	 * @param {function} slideStartCallback
 	 */
-	setOnSlideStart(onSlideStart) {
-		if (typeof onSlideStart === 'function') {
-			this.onSlideStart = onSlideStart;
+	setSlideStartCallback(slideStartCallback) {
+		if (typeof slideStartCallback === 'function') {
+			this.slideStartCallback = slideStartCallback;
 		}
 	}
 
 	/**
 	 * Set a method that is called when the reel is done changing position.
 	 *
-	 * @param {function} onSlideEnd
+	 * @param {function} slideEndCallback
 	 */
-	setOnSlideEnd(onSlideEnd) {
-		if (typeof onSlideEnd === 'function') {
-			this.onSlideEnd = onSlideEnd;
+	setSlideEndCallback(slideEndCallback) {
+		if (typeof slideEndCallback === 'function') {
+			this.slideEndCallback = slideEndCallback;
 		}
 	}
 
 	/**
 	 * Set a method that is called throughout on each step of changing reel position.
 	 *
-	 * @param {function} onSlide
+	 * @param {function} slideCallback
 	 */
-	setOnSlide(onSlide) {
-		if (typeof onSlide === 'function') {
-			this.onSlide = onSlide;
+	setSlideCallback(slideCallback) {
+		if (typeof slideCallback === 'function') {
+			this.slideCallback = slideCallback;
 		}
+	}
+
+	onSlide() {
+		if (typeof slideCallback === 'function') {
+			this.slideCallback();
+		}
+	}
+
+	onSlideStart() {
+		if (typeof slideStartCallback === 'function') {
+			this.slideStartCallback();
+		}
+	}
+
+	onSlideEnd() {
+		this.isPanning = false;
+		this.currentPanDistance = 0;
+
+		if (typeof slideEndCallback === 'function') {
+			this.slideEndCallback();
+		}
+	}
+
+	cancelPanning() {
+		if (this.reelAnimation) {
+			this.reelAnimation.destroy();
+			delete this.reelAnimation;
+		}
+
+		this.isPanning = false;
+		this.currentPanDistance = 0;
 	}
 }
 

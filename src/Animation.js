@@ -31,12 +31,18 @@ export default class Animation {
 
 	end() {
 		if (this.requestId) {
-			window.cancelAnimationFrame(this.requestId);
-			delete this.requestId;
+			this.destroy();
 
 			if (this.hasOwnProperty('onEnd') && typeof this.onEnd === 'function') {
 				this.onEnd();
 			}
+		}
+	}
+
+	destroy() {
+		if (this.requestId) {
+			window.cancelAnimationFrame(this.requestId);
+			delete this.requestId;
 		}
 	}
 
