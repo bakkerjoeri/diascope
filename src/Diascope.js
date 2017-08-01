@@ -1,5 +1,6 @@
 import Animation from './Animation';
 import Cursor from './Cursor';
+import EventManager from './EventManager';
 
 export default class Diascope {
 	constructor(frame, reel, options = {}) {
@@ -80,24 +81,22 @@ export default class Diascope {
 	}
 
 	initializeDragging(reel) {
-		addEventListener('mousedown', reel, this.onGrab.bind(this), {passive: false});
-		addEventListener('touchstart', reel, this.onGrab.bind(this), {passive: false});
+		EventManager.addEventListener('mousedown', reel, this.onGrab.bind(this), {passive: false});
+		EventManager.addEventListener('touchstart', reel, this.onGrab.bind(this), {passive: false});
 
-		addEventListener('mousemove', document, this.onDrag.bind(this), {passive: false});
-		addEventListener('touchmove', document, this.onDrag.bind(this), {passive: false});
+		EventManager.addEventListener('mousemove', document, this.onDrag.bind(this), {passive: false});
+		EventManager.addEventListener('touchmove', document, this.onDrag.bind(this), {passive: false});
 
-		addEventListener('mouseup', document, this.onDragEnd.bind(this), {passive: false});
-		addEventListener('touchend', document, this.onDragEnd.bind(this), {passive: false});
+		EventManager.addEventListener('mouseup', document, this.onDragEnd.bind(this), {passive: false});
+		EventManager.addEventListener('touchend', document, this.onDragEnd.bind(this), {passive: false});
 
-		addEventListener('click', reel, this.preventClickInteractionDuringDragging.bind(this), {passive: false});
+		EventManager.addEventListener('click', reel, this.preventClickInteractionDuringDragging.bind(this), {passive: false});
 	}
 
 	onGrab(event) {
 		if (this.drag) {
-			stopEventPropagation(event);
-
-			this.isGrabbed = true;
 			this.cursor.updateWithEvent(event);
+			this.isGrabbed = true;
 
 			this.dragReelOffsetStart = getElementTransformTranslateX(this.elementReel);
 			this.dragPositionStart = this.cursor.getCurrentPosition();
@@ -106,8 +105,14 @@ export default class Diascope {
 	}
 
 	onDrag(event) {
+		this.cursor.updateWithEvent(event);
 		if (this.isGrabbed && !this.isDragging) {
-			this.isDragging = true;
+			let cursorChange = this.cursor.getChange();
+			if (Math.abs(cursorChange.x) > Math.abs(cursorChange.y)) {
+				this.isDragging = true;
+			} else if (Math.abs(cursorChange.x) < Math.abs(cursorChange.y)) {
+				this.isGrabbed = false;
+			}
 
 			if (typeof this.onSlideStart === 'function') {
 				this.onSlideStart();
@@ -115,9 +120,8 @@ export default class Diascope {
 		}
 
 		if (this.drag && this.isDragging) {
-			preventEventDefaults(event);
+			EventManager.preventEventDefaults(event);
 
-			this.cursor.updateWithEvent(event);
 			this.dragDistanceHorizontal = this.cursor.getCurrentPosition().x - this.dragPositionStart.x;
 			let reelOffset = getBoundaryCorrectedDragOffset(
 				this.dragReelOffsetStart + this.dragDistanceHorizontal,
@@ -139,7 +143,7 @@ export default class Diascope {
 		}
 
 		if (this.isDragging) {
-			stopEventPropagation(event);
+			EventManager.stopEventPropagation(event);
 
 			let slidesForSnap = findSlidesForSnap(this.elementsSlides, this.elementFrame);
 			let reelOffsetLeft = calculateReelOffsetToBringSlideSetIntoFrame(slidesForSnap, this.elementsSlides, this.elementFrame, this.shouldCenter);
@@ -160,19 +164,19 @@ export default class Diascope {
 
 	preventClickInteractionDuringDragging(event) {
 		if (this.isDragging) {
-			stopEventPropagation(event)
+			EventManager.stopEventPropagation(event)
 		}
 	}
 
 	addElementNavigateNext(element) {
 		if (element instanceof Element) {
-			addEventListener('click', element, this.next.bind(this));
+			EventManager.addEventListener('click', element, this.next.bind(this));
 		}
 	}
 
 	addElementNavigatePrevious(element) {
 		if (element instanceof Element) {
-			addEventListener('click', element, this.previous.bind(this));
+			EventManager.addEventListener('click', element, this.previous.bind(this));
 		}
 	}
 
@@ -475,57 +479,6 @@ function isSlideInFrame(slide, frame) {
 		&& (slideBounds.right <= frameBounds.right);
 }
 
-function addEventListener(type, element, callback, options = {}, useCapture = false) {
-	/**
-	 * Browsers that support the `passive` option are those that allow
-	 * for the usage of the options parameter in event listeners.
-	 *
-	 * See: https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
-	 */
-	if (doesSupportPassive()) {
-		/**
-		 * The following events should never `preventDefault()`, due to heavy
-		 * performance impact. The `passive` option enforces this, and
-		 * tells the browser not to expect any `preventDefault()``.
-		 *
-		 * See: https://developers.google.com/web/tools/lighthouse/audits/passive-event-listeners
-		 */
-		if (!options.hasOwnProperty('passive') && (type === 'wheel' || type === 'mousewheel' || type === 'touchstart' || type === 'touchmove')) {
-			options.passive = true;
-		}
-
-		element.addEventListener(type, callback, options, useCapture);
-	} else if (element.addEventListener) {
-		element.addEventListener(type, callback, useCapture);
-	} else {
-		element.attachEvent(`on${type}`, callback);
-	}
-}
-
-/**
- * Check if the browser knows about the `passive` option and actively looks for it.
- *
- * See: https://github.com/WICG/EventListenerOptions/blob/gh-pages/explainer.md#feature-detection
- */
-function doesSupportPassive() {
-	let supportsPassive = false;
-
-	try {
-		let options = Object.defineProperty({}, 'passive', {
-			get: function() {
-				supportsPassive = true;
-			}
-		});
-
-		window.addEventListener('test', null, options);
-		window.removeEventListener('test', null, options);
-	} catch (e) {
-		// Do nothing
-	}
-
-	return supportsPassive;
-}
-
 function getElementTransformTranslateX(element) {
 	if (window.getComputedStyle) {
 		let style = window.getComputedStyle(element);
@@ -543,28 +496,4 @@ function getElementTransformTranslateX(element) {
 	}
 
 	return 0;
-}
-
-function preventEventDefaults(event) {
-	if (!event) {
-		event = window.event;
-	}
-
-	if (event.preventDefault) {
-		event.preventDefault();
-	}
-
-	event.returnValue = false;
-}
-
-function stopEventPropagation(event) {
-	if (!event) {
-		event = window.event;
-	}
-
-	if (event.stopPropagation) {
-		event.stopPropagation();
-	}
-
-	event.returnValue = false;
 }
