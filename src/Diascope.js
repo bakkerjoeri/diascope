@@ -101,11 +101,11 @@ export default class Diascope {
 	}
 
 	initializeDragging(reel) {
-		EventManager.addEventListener('mousedown', reel, this.onGrab.bind(this), {passive: false});
-		EventManager.addEventListener('touchstart', reel, this.onGrab.bind(this), {passive: false});
+		EventManager.addEventListener('mousedown', reel, this.handleMouseDown.bind(this), {passive: false});
+		EventManager.addEventListener('touchstart', reel, this.handleTouchStart.bind(this), {passive: false});
 
-		EventManager.addEventListener('mousemove', document, this.onDrag.bind(this), {passive: false});
-		EventManager.addEventListener('touchmove', document, this.onDrag.bind(this), {passive: false});
+		EventManager.addEventListener('mousemove', document, this.handleMouseMove.bind(this), {passive: false});
+		EventManager.addEventListener('touchmove', document, this.handleTouchMove.bind(this), {passive: false});
 
 		EventManager.addEventListener('mouseup', document, this.onDragEnd.bind(this), {passive: false});
 		EventManager.addEventListener('touchend', document, this.onDragEnd.bind(this), {passive: false});
@@ -113,49 +113,83 @@ export default class Diascope {
 		EventManager.addEventListener('click', reel, this.preventClickInteractionDuringDragging.bind(this), {passive: false});
 	}
 
-	onGrab(event) {
-		if (this.drag && (event.type === 'touchstart' || EventManager.isEventUnmodifiedLeftMouseDown(event))) {
-			this.cursor.updateWithEvent(event);
-			this.isGrabbed = true;
+	handleMouseDown(event) {
+		this.cursor.updateWithEvent(event);
 
-			this.dragReelOffsetStart = getElementTransformTranslateX(this.elementReel);
-			this.dragPositionStart = this.cursor.getCurrentPosition();
-			this.dragDistanceHorizontal = 0;
+		EventManager.preventEventDefaults(event);
+		EventManager.stopEventPropagation(event);
+
+		if (this.drag && EventManager.isEventUnmodifiedLeftMouseDown(event)) {
+			this.onGrab(event);
 		}
 	}
 
-	onDrag(event) {
+	handleTouchStart(event) {
+		this.cursor.updateWithEvent(event);
+
+		EventManager.stopEventPropagation(event);
+
+		if (this.drag) {
+			this.onGrab(event);
+		}
+	}
+
+	handleMouseMove(event) {
+		this.cursor.updateWithEvent(event);
+
+		if (this.drag && this.isGrabbed && !this.isDragging) {
+			this.isDragging = true;
+		}
+
+		if (this.drag && this.isDragging) {
+			EventManager.preventEventDefaults(event);
+			this.onDrag(event);
+		}
+	}
+
+	handleTouchMove(event) {
 		this.cursor.updateWithEvent(event);
 
 		if (this.isGrabbed && !this.isDragging) {
-			let cursorChange = this.cursor.getChange();
-			if (Math.abs(cursorChange.x) > Math.abs(cursorChange.y)) {
+			if (this.cursor.isMovementHorizontal()) {
 				this.isDragging = true;
 
 				if (typeof this.onSlideStart === 'function') {
 					this.onSlideStart();
 				}
-			} else if (Math.abs(cursorChange.x) < Math.abs(cursorChange.y)) {
+			} else {
 				this.isGrabbed = false;
 			}
 		}
 
 		if (this.drag && this.isDragging) {
-			this.cancelPanning();
 			EventManager.preventEventDefaults(event);
+			this.onDrag(event);
+		}
+	}
 
-			this.dragDistanceHorizontal = this.cursor.getCurrentPosition().x - this.dragPositionStart.x;
-			let reelOffset = getBoundaryCorrectedDragOffset(
-				this.dragReelOffsetStart + this.dragDistanceHorizontal,
-				this.elementsSlides,
-				this.elementFrame,
-				this.elastic,
-			);
-			renderElementAtHorizontalOffset(this.elementReel, reelOffset);
+	onGrab() {
+		this.isGrabbed = true;
 
-			if (typeof this.onSlide === 'function') {
-				this.onSlide();
-			}
+		this.dragReelOffsetStart = getElementTransformTranslateX(this.elementReel);
+		this.dragPositionStart = this.cursor.getCurrentPosition();
+		this.dragDistanceHorizontal = 0;
+	}
+
+	onDrag() {
+		this.cancelPanning();
+
+		this.dragDistanceHorizontal = this.cursor.getCurrentPosition().x - this.dragPositionStart.x;
+		let reelOffset = getBoundaryCorrectedDragOffset(
+			this.dragReelOffsetStart + this.dragDistanceHorizontal,
+			this.elementsSlides,
+			this.elementFrame,
+			this.elastic,
+		);
+		renderElementAtHorizontalOffset(this.elementReel, reelOffset);
+
+		if (typeof this.onSlide === 'function') {
+			this.onSlide();
 		}
 	}
 
