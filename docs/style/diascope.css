@@ -23,3 +23,8 @@
     border: 2px solid #fff;
     background-color: #334daf;
 }
+
+.diascope__slide:focus,
+.diascope__slide:hover {
+    background-color: #ee0022;
+}
