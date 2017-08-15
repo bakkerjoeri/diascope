@@ -127,8 +127,6 @@ export default class Diascope {
 	handleTouchStart(event) {
 		this.cursor.updateWithEvent(event);
 
-		EventManager.stopEventPropagation(event);
-
 		if (this.drag) {
 			this.onGrab(event);
 		}
