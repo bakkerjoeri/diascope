@@ -46,6 +46,14 @@ export default class Cursor {
 	getChange() {
 		return this.positionChange;
 	}
+
+	isMovementHorizontal() {
+		return Math.abs(this.getChange().x) >= Math.abs(this.getChange().y);
+	}
+
+	isMovementVertical() {
+		return Math.abs(this.getChange().y) >= Math.abs(this.getChange().x);
+	}
 }
 
 function getPositionFromEvent(event) {
