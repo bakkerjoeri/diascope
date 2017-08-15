@@ -36,7 +36,7 @@ export default class Diascope {
 		}
 
 		if (this.drag) {
-			this.initializeDragging(this.elementReel);
+			this.initializeDragging(this.elementFrame);
 		}
 	}
 
@@ -100,9 +100,9 @@ export default class Diascope {
 		return findSlidesInFrame(this.elementsSlides, this.elementFrame);
 	}
 
-	initializeDragging(reel) {
-		EventManager.addEventListener('mousedown', reel, this.handleMouseDown.bind(this), {passive: false});
-		EventManager.addEventListener('touchstart', reel, this.handleTouchStart.bind(this), {passive: false});
+	initializeDragging(handle) {
+		EventManager.addEventListener('mousedown', handle, this.handleMouseDown.bind(this), {passive: false});
+		EventManager.addEventListener('touchstart', handle, this.handleTouchStart.bind(this), {passive: false});
 
 		EventManager.addEventListener('mousemove', document, this.handleMouseMove.bind(this), {passive: false});
 		EventManager.addEventListener('touchmove', document, this.handleTouchMove.bind(this), {passive: false});
@@ -110,7 +110,7 @@ export default class Diascope {
 		EventManager.addEventListener('mouseup', document, this.onDragEnd.bind(this), {passive: false});
 		EventManager.addEventListener('touchend', document, this.onDragEnd.bind(this), {passive: false});
 
-		EventManager.addEventListener('click', reel, this.preventClickInteractionDuringDragging.bind(this), {passive: false});
+		EventManager.addEventListener('click', handle, this.preventClickInteractionDuringDragging.bind(this), {passive: false});
 	}
 
 	handleMouseDown(event) {
