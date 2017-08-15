@@ -94,7 +94,7 @@ function getCubicBezierForEasing(easing) {
 
 function renderElementAtHorizontalOffset(element, offset) {
 	if (element instanceof Element) {
-		element.style.transform = `translateX(${offset}px)`;
+		element.style.transform = `translateX(${offset}px) translateZ(0)`;
 	}
 }
 
