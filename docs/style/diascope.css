@@ -24,6 +24,10 @@
     background-color: #334daf;
 }
 
+.diascope__slide:not(:last-child) {
+    margin-right: 20px;
+}
+
 .diascope__slide:focus,
 .diascope__slide:hover {
     background-color: #ee0022;
